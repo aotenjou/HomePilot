@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.manager.mapper.UserCustomPermissionMapper">
+    <insert id="createUserCustomPermission">
+        insert into user_custom_permission(user_id, home_id, device_id, operation_id, has_permission, end_time) values(#{userId}, #{homeId} #{deviceId}, #{operationId}, #{hasPermission}, #{endTime})
+    </insert>
+
+    <select id="checkPermission" resultType="java.lang.Boolean">
+        select has_permission from user_custom_permission where id = #{id} AND is_deleted = 0
+    </select>
+
+    <delete id="deleteUserCustomPermission">
+        DELETE FROM user_custom_permission WHERE id = #{id}
+    </delete>
+
+    <select id="checkUserOperationPermission" resultType="java.lang.Boolean">
+        SELECT has_permission FROM user_custom_permission WHERE user_id = #{userId} AND operation_id = #{operationId} AND device_id = #{deviceId} AND is_deleted = 0
+    </select>
+
+    <select id="selectPermission" resultType="com.example.manager.entity.UserCustomPermission">
+        SELECT * FROM user_custom_permission WHERE user_id = #{userId} AND operation_id = #{operationId} AND device_id = #{deviceId} AND is_deleted = 0
+    </select>
+</mapper>

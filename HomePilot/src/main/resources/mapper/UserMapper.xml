@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.manager.mapper.UserMapper">
+    <select id="selectPasswordByPhone" resultType="java.lang.String">
+            select password from user where phone = #{phone} AND is_deleted = 0
+    </select>
+
+    <insert id="createUser">
+            insert into User(username, phone, password) values(#{user.username}, #{user.phone}, #{user.password})
+    </insert>
+
+    <select id="selectPhone" resultType="java.lang.String">
+            select phone from User where phone = #{phone} AND is_deleted = 0
+    </select>
+
+    <select id="selectByUserId" resultType="com.example.manager.entity.User">
+        select * from user where id in
+        <foreach item="item" index="index" collection="userId" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+        AND is_deleted = 0
+    </select>
+
+    <select id="getLastInsertId" resultType="java.lang.Long">
+        SELECT LAST_INSERT_ID()
+    </select>
+
+    <select id="selectUserIdByPhone" resultType="java.lang.Long">
+            select id from user where phone = #{phone} AND is_deleted = 0
+    </select>
+
+    <select id="selectByPhone" resultType="com.example.manager.entity.User">
+        SELECT * FROM user WHERE phone = #{phone} AND is_deleted = 0
+    </select>
+
+</mapper>

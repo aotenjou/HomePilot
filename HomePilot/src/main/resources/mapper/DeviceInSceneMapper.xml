@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.manager.mapper.DeviceInSceneMapper">
+
+    <insert id="createDeviceInScene">
+        INSERT INTO device_in_scene(device_id, operation_id, scene_id) VALUES
+        <foreach item="item" index="index" collection="deviceOperation" separator=",">
+            (#{item.deviceId}, #{item.operationId}, #{sceneId})
+        </foreach>
+    </insert>
+
+    <delete id="deleteDeviceInScene">
+        DELETE FROM device_in_scene WHERE scene_id = #{sceneId}
+    </delete>
+
+    <select id="selectBySceneId" resultType="com.example.manager.entity.DeviceInScene">
+        SELECT * FROM device_in_scene WHERE scene_id = #{sceneId} AND is_deleted = 0
+    </select>
+
+    <delete id="deleteDeviceNotInScene">
+        DELETE FROM device_in_scene WHERE device_id NOT IN
+        <foreach item="item" index="index" collection="deviceOperation" separator=","  open="(" close=")">
+            #{item.deviceId}
+        </foreach>
+        AND scene_id = #{sceneId}
+        AND is_deleted = 0
+    </delete>
+
+    <update id="updateDeviceInScene">
+        UPDATE device_in_scene
+        SET
+        device_id = CASE device_id
+        <foreach item="item" collection="deviceOperation">
+            WHEN #{item.deviceId} THEN #{item.deviceId}
+        </foreach>
+        ELSE device_id END,
+        operation_id = CASE device_id
+        <foreach item="item" collection="deviceOperation">
+            WHEN #{item.deviceId} THEN #{item.operationId}
+        </foreach>
+        ELSE operation_id END
+        WHERE scene_id = #{sceneId}
+        AND is_deleted = 0
+    </update>
+</mapper>

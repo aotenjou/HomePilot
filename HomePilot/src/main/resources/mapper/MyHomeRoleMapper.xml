@@ -1,0 +1,13 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.manager.mapper.MyHomeRoleMapper">
+    <select id="getMyHomeRole" resultType="com.example.manager.DTO.MyHomeRole">
+        SELECT h.id AS homeId, h.name AS name, uh.role AS role
+        FROM user_home uh
+        JOIN home h ON uh.home_id = h.id
+        WHERE uh.user_id = #{userId}
+        AND uh.is_deleted = 0
+        AND h.is_deleted = 0
+    </select>
+</mapper>

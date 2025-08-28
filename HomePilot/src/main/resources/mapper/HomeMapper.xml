@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.manager.mapper.HomeMapper">
+
+    <insert id="createHome">
+        INSERT INTO home (name, address) VALUES (#{name}, #{address})
+    </insert>
+
+    <select id="getLastInsertId" resultType="java.lang.Long">
+        SELECT LAST_INSERT_ID()
+    </select>
+
+    <select id="selectHomeIdByName" resultType="java.lang.Long">
+        SELECT id FROM home WHERE name = #{name} AND is_deleted = 0
+    </select>
+
+    <select id="selectByHomeId" resultType="com.example.manager.entity.Home">
+        SELECT * FROM home WHERE id = #{id} AND is_deleted = 0
+    </select>
+
+    <delete id="deleteHomeById">
+        DELETE FROM home WHERE id = #{id}
+    </delete>
+
+    <select id="selectByHomeIds" resultType="com.example.manager.entity.Home">
+        SELECT * FROM home
+        <if test="homeIds != null and !homeIds.isEmpty()">
+            WHERE id IN
+            <foreach item="item" collection="homeIds" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+            AND is_deleted = 0
+        </if>
+    </select>
+
+    <select id="selectHomeNameById" resultType="java.lang.String">
+        SELECT name FROM home WHERE id = #{id} AND is_deleted = 0
+    </select>
+
+    <update id="updateHome">
+        UPDATE home SET name = #{name}, address = #{address} WHERE id = #{homeId} AND is_deleted = 0
+    </update>
+
+    <select id="selectAddressById" resultType="java.lang.String">
+        SELECT address FROM home WHERE id = #{id} AND is_deleted = 0
+    </select>
+
+    <update id="updateHomeName">
+        UPDATE home SET name = #{name} WHERE id = #{homeId} AND is_deleted = 0
+    </update>
+
+    <update id="updateHomeAddress">
+        UPDATE home SET address = #{address} WHERE id = #{homeId} AND is_deleted = 0
+    </update>
+
+    <select id="searchHomeByPartName" resultType="com.example.manager.entity.Home">
+        SELECT * FROM home WHERE name LIKE CONCAT('%', #{name}, '%') AND is_deleted = 0
+    </select>
+</mapper>

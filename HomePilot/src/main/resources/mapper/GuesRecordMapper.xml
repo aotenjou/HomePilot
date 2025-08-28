@@ -1,0 +1,8 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.manager.mapper.GuestRecordMapper">
+    <insert id="insertRecord">
+        INSERT INTO guest_record (home_id, user_id, type, record_time) VALUES (#{homeId}, #{userId}, #{recordType}, #{recordTime})
+    </insert>
+</mapper>

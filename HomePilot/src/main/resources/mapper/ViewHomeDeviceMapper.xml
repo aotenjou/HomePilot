@@ -1,0 +1,20 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.manager.mapper.ViewHomeDeviceMapper">
+    <select id="getHomeDevicesView" resultType="com.example.manager.DTO.ViewHomeDevice">
+        SELECT
+        d.id AS id,
+        d.type_id AS typeId,
+        d.name AS name,
+        o.id AS operationId,
+        o.name AS operationName,
+        d.room_id AS roomId,
+        d.home_id AS homeId
+        FROM device d
+        JOIN device_operation do ON d.type_id = do.device_type_id
+        JOIN operation o ON do.operation_id = o.id
+        WHERE
+        d.home_id = #{homeId}
+    </select>
+</mapper>
