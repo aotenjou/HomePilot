@@ -1,0 +1,8 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.manager.mapper.DeviceDataMapper">
+    <insert id="insertDeviceData">
+        insert into Device_Data (device_id, data_time, humidity, illumination) values(#{deviceId}, #{dataTime}, #{humidity}, #{illumination})
+    </insert>
+</mapper>
