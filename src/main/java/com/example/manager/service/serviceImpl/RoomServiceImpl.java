@@ -52,4 +52,9 @@ public class RoomServiceImpl extends ServiceImpl<RoomMapper, Room> implements Ro
         roomMapper.deleteRoom(id, homeId);
         deviceMapper.deleteByRoomIdAndHomeId(id, homeId);
     }
+
+    @Override
+    public List<Room> getRoom(Long homeId) {
+        return roomMapper.selectByHomeId(homeId);
+    }
 }

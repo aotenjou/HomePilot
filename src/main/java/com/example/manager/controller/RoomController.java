@@ -52,7 +52,7 @@ public class RoomController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @Operation(summary = "获取房间或家庭设备列表", description = "当房间ID为0时，获取家庭所有设备；否则获取指定房间的设备")
+    @Operation(summary = "获取设备列表", description = "当房间ID为0时，获取家庭所有设备；否则获取指定房间的设备")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "设备查看成功"),
             @ApiResponse(responseCode = "404", description = "房间或设备未找到")
@@ -113,6 +113,30 @@ public class RoomController {
         }
 
         response.put("message", "删除成功");
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @Operation(summary = "list all rooms" ,description = "get a list of room by selecting a homeId")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "get room list successfully"),
+            @ApiResponse(responseCode = "404", description = "homeId not found")
+    })
+    @GetMapping("/list")
+    public ResponseEntity<Map<String, Object>> listRooms(@Parameter(description = "家庭ID", required = true)@PathVariable("homeId") Long homeId,
+                                                        @RequestHeader HttpHeaders headers) {
+        Map<String, Object> response = new HashMap<>();
+        if(!homeService.checkHome(homeId)){
+            response.put("message", "家庭不存在");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+
+        List<Room> rooms = roomService.getRoom(homeId);
+        if(!roomService.checkRoom(rooms.get(0).getId(), homeId)){
+            response.put("message", "room list empty");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+        response.put("Rooms",rooms);
+        response.put("message", "查看成功");
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

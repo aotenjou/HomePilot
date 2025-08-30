@@ -212,11 +212,19 @@
 **响应示例**:
 ```json
 {
-  "rooms": [
+  "message": "查看成功",
+  "Rooms": [
     {
       "id": 1,
-      "name": "客厅",
-      "homeId": 1
+      "homeId": 2,
+      "name": "bedroom",
+      "isDeleted": false
+    },
+    {
+      "id": 3,
+      "homeId": 2,
+      "name": "bedroom",
+      "isDeleted": false
     }
   ]
 }

@@ -13,4 +13,6 @@ public interface RoomService {
     Long createRoom(Long homeId, String name);
 
     void deleteRoom(Long id, Long homeId);
+
+    List<Room> getRoom(Long homeId);
 }
