@@ -49,10 +49,10 @@ public class DeviceManageController {
     public ResponseEntity<Map<String, Object>> addDevice(@RequestBody Device device) {
         Map<String, Object> response = new HashMap<>();
         try {
-            deviceService.addDevice(device);
+            Long deviceID = deviceService.addDevice(device);
             response.put("status", "success");
             response.put("message", "添加设备成功");
-            response.put("deviceId", device.getId());
+            response.put("deviceId", deviceID);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             response.put("status", "error");
