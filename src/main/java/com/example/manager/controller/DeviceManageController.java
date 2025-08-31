@@ -82,7 +82,7 @@ public class DeviceManageController {
         boolean success = deviceService.updateDevice(device);
         if (success) {
             response.put("status", "success");
-            response.put("message", "更新成功");
+            response.put("message", "设备信息更新成功");
             return ResponseEntity.ok(response);
         } else {
             response.put("status", "error");
