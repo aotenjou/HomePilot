@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-@TableName("user_custom_permission")
+@TableName("User_Custom_Permission")
 public class UserCustomPermission {
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;

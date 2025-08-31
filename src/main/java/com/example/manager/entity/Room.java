@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-@TableName("room")
+@TableName("ROOM")
 public class Room {
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;

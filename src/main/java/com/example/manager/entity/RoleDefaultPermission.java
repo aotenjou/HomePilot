@@ -10,7 +10,7 @@ import java.io.Serializable;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-@TableName("role_default_permission")
+@TableName("Role_Default_Permission")
 public class RoleDefaultPermission implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;

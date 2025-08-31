@@ -5,7 +5,7 @@ import lombok.Data;
 import lombok.Value;
 
 @Data
-@TableName("device_test")
+@TableName("Device_Test")
 public class DeviceTest {
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;

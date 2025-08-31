@@ -9,7 +9,7 @@ import java.io.Serializable;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-@TableName("operation")
+@TableName("Operation")
 public class Operation{
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
