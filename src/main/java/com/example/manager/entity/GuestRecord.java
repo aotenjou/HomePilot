@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-@TableName("guest_record")
+@TableName("Guest_Record")
 public class GuestRecord {
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;

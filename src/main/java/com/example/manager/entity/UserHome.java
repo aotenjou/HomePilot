@@ -10,7 +10,7 @@ import java.io.Serializable;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-@TableName("user_home")
+@TableName("User_Home")
 public class UserHome implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;

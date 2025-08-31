@@ -8,7 +8,7 @@ import lombok.Getter;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-@TableName("user")
+@TableName("User")
 public class User {
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;

@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-@TableName("scene")
+@TableName("Scene")
 public class Scene {
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
