@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.manager.mapper.DeviceMapper">
+    <insert id="insertDevice">
+        insert into Device (name, ip_address,home_id, room_id, type_id, online_status, active_status, last_active_time)
+        values (#{name}, #{ipAddress}, #{homeId}, #{roomId}, #{typeId}, #{onlineStatus}, #{activeStatus}, #{lastActiveTime});
+    </insert>
+    <select id="getLastInsertId" resultType="java.lang.Long">
+            SELECT LAST_INSERT_ID()
+    </select>
+    <select id="selectById" resultType="com.example.manager.entity.Device">
+        select * from Device where id = #{id} and is_deleted = 0
+    </select>
+
+    <select id="selectByIdList" resultType="com.example.manager.entity.Device">
+        select * from Device
+        <if test="idList != null and idList.isEmpty()">
+            where id in
+            <foreach item="item" index="index" collection="idList" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+            and and is_deleted = 0
+        </if>
+    </select>
+
+    <select id="selectByHomeId" resultType="com.example.manager.entity.Device">
+        select * from Device where home_id = #{homeId} and is_deleted = 0
+    </select>
+
+    <select id="selectByRoomIdAndHomeId" resultType="com.example.manager.entity.Device">
+        SELECT * FROM Device WHERE room_id = #{roomId} AND home_id = #{homeId} AND is_deleted = 0
+    </select>
+
+    <select id="selectByUserIdAndHomeId" resultType="com.example.manager.entity.Device">
+        SELECT * FROM Device WHERE home_id = #{homeId} AND is_deleted = 0
+    </select>
+
+    <update id="updateLastActiveTime">
+        UPDATE Device SET last_active_time = #{time} WHERE id = #{id} AND is_deleted = 0
+    </update>
+
+    <select id="selectLastActiveTime" resultType="java.time.LocalDateTime">
+        SELECT last_active_time FROM Device WHERE id = #{id} AND is_deleted = 0
+    </select>
+
+    <delete id="deleteByHomeId">
+        DELETE FROM Device WHERE home_id = #{homeId}
+    </delete>
+
+    <select id="selectOnlineStatus" resultType="java.lang.Integer">
+        SELECT online_status FROM Device WHERE id = #{id} AND is_deleted = 0
+    </select>
+
+    <select id="selectActiveStatus" resultType="java.lang.Integer">
+        SELECT active_status FROM Device WHERE id = #{id} AND is_deleted = 0
+    </select>
+
+    <delete id="deleteByRoomIdAndHomeId">
+        DELETE FROM Device WHERE home_id = #{homeId} AND room_id = #{roomId}
+    </delete>
+
+    <select id="selectAllId" resultType="java.lang.Long">
+        SELECT id FROM Device WHERE is_deleted = 0
+    </select>
+
+    <select id="findDeviceAll" resultType="com.example.manager.entity.Device">
+        SELECT * FROM Device WHERE is_deleted = 0
+    </select>
+</mapper>

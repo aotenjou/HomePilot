@@ -1,0 +1,18 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.manager.mapper.SceneDeviceViewMapper">
+    <select id="getSceneDeviceView" resultType="com.example.manager.DTO.SceneDeviceView">
+        SELECT
+        d.id AS deviceId,
+        d.name AS deviceName,
+        o.id AS operationId,
+        o.name AS operationName
+        FROM Device d
+        JOIN Device_Operation do ON d.type_id = do.device_type_id
+        JOIN Operation o ON do.operation_id = o.id
+        JOIN Device_In_Scene ds ON d.id = ds.device_id
+        WHERE
+        scene_id = #{sceneId}
+    </select>
+</mapper>

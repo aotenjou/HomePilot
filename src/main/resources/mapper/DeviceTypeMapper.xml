@@ -1,0 +1,12 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.manager.mapper.DeviceTypeMapper">
+    <select id="selectNameById" resultType="java.lang.String">
+        SELECT name FROM Device_Type WHERE id = #{id} AND is_deleted = 0
+    </select>
+
+    <select id="selectAllDeviceTypes" resultType="com.example.manager.entity.DeviceType">
+        SELECT id, name, description FROM Device_Type WHERE is_deleted = 0
+    </select>
+</mapper>

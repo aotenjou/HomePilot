@@ -1,0 +1,28 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.manager.mapper.SceneMapper">
+    <delete id="deleteSceneById">
+        DELETE FROM Scene WHERE id = #{id}
+    </delete>
+
+    <insert id="createScene">
+        INSERT INTO Scene (home_id, user_id, name, description, status, start_time, end_time) VALUES (#{homeId}, #{userId}, #{name}, #{description}, #{status}, #{startTime}, #{endTime})
+    </insert>
+
+    <select id="selectById" resultType="com.example.manager.entity.Scene">
+        SELECT * FROM Scene WHERE id = #{id} AND is_deleted = 0
+    </select>
+
+    <select id="selectByHomeId" resultType="com.example.manager.entity.Scene">
+        SELECT * FROM Scene WHERE home_id = #{homeId} AND is_deleted = 0
+    </select>
+
+    <update id="updateScene">
+        UPDATE Scene SET home_id = #{scene.homeId}, user_id = #{scene.userId}, name = #{scene.name}, description = #{scene.description}, status = #{scene.status}, start_time = #{scene.startTime}, end_time = #{scene.endTime} WHERE id = #{scene.id} AND is_deleted = 0
+    </update>
+
+    <select id="selectLastInsertId" resultType="java.lang.Long">
+        SELECT LAST_INSERT_ID()
+    </select>
+</mapper>
