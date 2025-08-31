@@ -23,8 +23,9 @@ public class DeviceManageServiceImpl extends ServiceImpl<DeviceMapper, Device> i
     private DeviceTypeMapper deviceTypeMapper;
 
     @Override
-    public void addDevice(Device device) {
-        deviceMapper.insert(device);
+    public Long addDevice(Device device) {
+        deviceMapper.insertDevice(device.getName(), device.getIpAddress(), device.getRoomId(), device.getTypeId(), device.getHomeId(), device.getOnlineStatus(), device.getActiveStatus(), LocalDateTime.now());
+        return deviceMapper.getLastInsertId();
     }
     @Override
     public List<Device> getDevicesByHomeID (Long homeId){

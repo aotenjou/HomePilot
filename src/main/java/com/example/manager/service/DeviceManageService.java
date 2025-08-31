@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface DeviceManageService extends IService<Device> {
     // 添加设备
-    void addDevice(Device device);
+    Long addDevice(Device device);
     // 获取家庭可用设备列表
     List<Device> getDevicesByHomeID(Long homeID);
     // 更新设备信息
