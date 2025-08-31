@@ -345,24 +345,49 @@
 }
 ```
 
-### 6. 移动设备
+### 6. 更新激活设备
 
-**接口地址**: `POST /home/{homeId}/room/device/move`
+**接口地址**: `POST /home/{homeId}/room/device/active`
 
 **请求参数**:
 ```json
 {
-  "deviceId": 1,
-  "newRoomId": 2
+  "deviceId": 1
 }
 ```
 
 **响应示例**:
 ```json
 {
-  "message": "移动成功"
+  "status": "success",
+  "message": "更新时间成功"
 }
 ```
+
+### 7.获取用户可访问设备
+
+**接口地址**: `GET /home/{homeId}/room/device/accessible-devices`
+
+**响应示例**:
+```json
+{
+  "devices": [
+    {
+      "id": 1,
+      "name": "客厅灯",
+      "ipAddress": "192.168.1.100",
+      "homeId": 1,
+      "roomId": 1,
+      "typeId": 1,
+      "onlineStatus": 1,
+      "activeStatus": 1,
+      "lastActiveTime": "2024-01-01T10:00:00"
+    }
+    ]
+}
+```
+
+
 
 ## 设备交互接口
 

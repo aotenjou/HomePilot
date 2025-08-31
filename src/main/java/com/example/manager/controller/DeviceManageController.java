@@ -117,7 +117,7 @@ public class DeviceManageController {
             @ApiResponse(responseCode = "400", description = "设备不存在")
     })
     @PostMapping("/active")
-    public ResponseEntity<Map<String, Object>> updateActive(@RequestParam Long id) {
+    public ResponseEntity<Map<String, Object>> updateActive(@RequestParam Long id, @PathVariable String homeId) {
         Map<String, Object> response = new HashMap<>();
         boolean success = deviceService.updateLastActiveTime(id, LocalDateTime.now());
         if (success) {

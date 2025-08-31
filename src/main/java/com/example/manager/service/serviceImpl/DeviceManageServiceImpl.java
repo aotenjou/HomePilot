@@ -32,8 +32,8 @@ public class DeviceManageServiceImpl extends ServiceImpl<DeviceMapper, Device> i
         return deviceMapper.selectByHomeId(homeId);
     }
     @Override
-    public boolean updateDevice(Device device) {
-        return this.updateById(device);
+    public boolean updateDevice(Device Device) {
+        return this.updateById(Device);
     }
     @Override
     public boolean removeDevice(Long id) {
