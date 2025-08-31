@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-@TableName("device_in_scene")
+@TableName("Device_In_Scene")
 public class DeviceInScene {
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
