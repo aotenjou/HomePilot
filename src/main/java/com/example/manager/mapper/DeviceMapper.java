@@ -16,6 +16,8 @@ public interface DeviceMapper extends BaseMapper<Device> {
     List<Device> selectByIdList(@Param("idList") List<Long> idList);
 
     List<Device> selectByHomeId(@Param("homeId") Long homeId);
+    
+    List<Device> selectDevicesByHomeId(@Param("homeId") Long homeId);
 
     List<Device> selectByRoomIdAndHomeId(@Param("roomId") Long roomId, @Param("homeId") Long homeId);
 

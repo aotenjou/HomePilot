@@ -2,7 +2,11 @@ package com.example.manager.mqtt.Callback;
 
 
 import com.example.manager.mapper.DeviceMapper;
+import com.example.manager.mapper.DeviceTypeMapper;
 import com.example.manager.mapper.MqttdataMapper;
+import com.example.manager.entity.Device;
+import com.example.manager.mqtt.Service.MqttSendmessageService;
+import com.example.manager.service.SecurityAlertService;
 import jakarta.annotation.PostConstruct;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -11,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @Component
@@ -21,6 +26,15 @@ public class MqttConsumerCallBack implements MqttCallback{
 
     @Autowired
     private DeviceMapper deviceMapper;
+
+    @Autowired
+    private DeviceTypeMapper deviceTypeMapper;
+
+    @Autowired
+    private MqttSendmessageService mqttSendmessageService;
+
+    @Autowired
+    private SecurityAlertService securityAlertService;
     /*
      * 客户端断开连接的回调
      */
@@ -33,6 +47,9 @@ public class MqttConsumerCallBack implements MqttCallback{
         pushCallback = this;
         pushCallback.mqttdataMapper = this.mqttdataMapper;
         pushCallback.deviceMapper = this.deviceMapper;
+        pushCallback.deviceTypeMapper = this.deviceTypeMapper;
+        pushCallback.mqttSendmessageService = this.mqttSendmessageService;
+        pushCallback.securityAlertService = this.securityAlertService;
     }
 
     @Override
@@ -74,6 +91,59 @@ public class MqttConsumerCallBack implements MqttCallback{
         System.out.println(String.format("接收消息Qos : %d", message.getQos()));
         System.out.println(String.format("接收消息内容 : %s", new String(message.getPayload())));
         System.out.println(String.format("接收消息retained : %b", message.isRetained()));
+
+        // 基于传感器的自动化逻辑
+        try {
+            List<Device> devices = pushCallback.deviceMapper.selectById(deviceId);
+            if (devices == null || devices.isEmpty()) {
+                return;
+            }
+            Device sensorDevice = devices.get(0);
+            Long roomId = sensorDevice.getRoomId();
+            Long homeId = sensorDevice.getHomeId();
+            Long typeId = sensorDevice.getTypeId();
+            String typeName = pushCallback.deviceTypeMapper.selectNameById(typeId);
+
+            // 安全传感器检测逻辑
+            if (typeName != null) {
+                // 火焰传感器检测
+                if (typeName.contains("火焰") || typeName.contains("火警")) {
+                    pushCallback.securityAlertService.handleFireAlert(deviceId, homeId, roomId, value);
+                    return;
+                }
+                
+                // 可燃气体传感器检测
+                if (typeName.contains("可燃气体") || typeName.contains("燃气") || typeName.contains("气体")) {
+                    pushCallback.securityAlertService.handleGasAlert(deviceId, homeId, roomId, value);
+                    return;
+                }
+            }
+
+            // 人体感应：检测到人体时，开灯（operationId = "1" TurnOn）
+            if (typeName != null && typeName.contains("人体") && value > 0) {
+                List<Device> roomDevices = pushCallback.deviceMapper.selectByRoomIdAndHomeId(roomId, homeId);
+                for (Device d : roomDevices) {
+                    String tName = pushCallback.deviceTypeMapper.selectNameById(d.getTypeId());
+                    if (tName != null && tName.contains("灯")) {
+                        pushCallback.mqttSendmessageService.sendMessage(d.getId().toString(), "1");
+                    }
+                }
+                return;
+            }
+
+            // 温度传感器：温度超过30度时，打开风扇（operationId = "1" TurnOn）
+            if (typeName != null && typeName.contains("温度") && value > 30) {
+                List<Device> roomDevices = pushCallback.deviceMapper.selectByRoomIdAndHomeId(roomId, homeId);
+                for (Device d : roomDevices) {
+                    String tName = pushCallback.deviceTypeMapper.selectNameById(d.getTypeId());
+                    if (tName != null && tName.contains("风扇")) {
+                        pushCallback.mqttSendmessageService.sendMessage(d.getId().toString(), "1");
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
