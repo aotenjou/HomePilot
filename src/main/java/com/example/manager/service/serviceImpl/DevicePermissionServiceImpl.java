@@ -1,4 +1,4 @@
-package main.java.com.example.manager.service.serviceImpl;
+package com.example.manager.service.serviceImpl;
 
 import com.example.manager.entity.Device;
 import com.example.manager.entity.UserCustomPermission;
@@ -83,16 +83,20 @@ public class DevicePermissionServiceImpl implements DevicePermissionService {
      */
     private boolean checkGuestPermission(Long deviceId, Long operationId, boolean hasDefaultPermission) {
         // 获取设备信息
-        Device device = deviceMapper.selectById(deviceId);
+        List<Device> device = deviceMapper.selectById(deviceId);
         if (device == null) {
             logger.warn("设备 {} 不存在", deviceId);
             return false;
         }
         
-        Long deviceTypeId = device.getTypeId();
+//        Long deviceTypeId = device.getTypeId();
+        List<Long> deviceTypeId= new ArrayList<>();
+        for(Device devices: device){
+            deviceTypeId.add(devices.getTypeId());
+        }
         
         // 访客只能访问特定类型的设备
-        if (!GUEST_ACCESSIBLE_DEVICE_TYPES.contains(deviceTypeId)) {
+        if (!GUEST_ACCESSIBLE_DEVICE_TYPES.containsAll(deviceTypeId)) {
             logger.info("访客不能访问设备类型 {}", deviceTypeId);
             return false;
         }
