@@ -516,8 +516,9 @@
 
 **接口地址**: `GET /home/{homeId}/room/device/accessible-devices`
 
+**Request head**: JWT token needed
+
 **请求参数**:
-- `userId` (query): 用户ID
 - `homeId` (query): 家庭ID
 
 **响应示例**:

@@ -57,6 +57,8 @@ public class WebConfig implements WebMvcConfigurer {
 
         registry.addInterceptor(authInterceptor).addPathPatterns("/home/get").order(1);
 
+        registry.addInterceptor(authInterceptor).addPathPatterns("/home/{homeId}/room/device/accessibleDevices").order(1);
+
 //        registry.addInterceptor(authInterceptor).addPathPatterns("/home/{deviceId}/operation/{operationId}").order(1);
 //        registry.addInterceptor(roleInHomeInterceptor).addPathPatterns("/home/{deviceId}/operation/{operationId}").order(2);
 //        registry.addInterceptor(deviceOperationInterceptor).addPathPatterns("/home/{deviceId}/operation/{operationId}").order(3);

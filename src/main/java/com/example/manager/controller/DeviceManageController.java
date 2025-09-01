@@ -140,9 +140,9 @@ public class DeviceManageController {
             @ApiResponse(responseCode = "200", description = "查询成功"),
             @ApiResponse(responseCode = "404", description = "没有可访问的设备")
     })
-    @GetMapping("/accessible-devices")
-    public ResponseEntity<Map<String, Object>> getAccessibleDevices(@RequestParam Long userId,
-                                                             @RequestParam Long homeId) {
+    @GetMapping("/accessibleDevices")
+    public ResponseEntity<Map<String, Object>> getAccessibleDevices(@Parameter(hidden = true)@RequestAttribute("currentUserId") Long userId,
+                                                             @PathVariable("homeId") Long homeId) {
         Map<String, Object> response = new HashMap<>();
         List<Device> devices = devicePermissionService.getAccessibleDevices(userId, homeId);
         if (devices.isEmpty()) {
