@@ -6,6 +6,7 @@ import com.example.manager.mapper.DeviceTypeMapper;
 import com.example.manager.mapper.MqttdataMapper;
 import com.example.manager.entity.Device;
 import com.example.manager.mqtt.Service.MqttSendmessageService;
+import com.example.manager.service.SecurityAlertService;
 import jakarta.annotation.PostConstruct;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -31,6 +32,9 @@ public class MqttConsumerCallBack implements MqttCallback{
 
     @Autowired
     private MqttSendmessageService mqttSendmessageService;
+
+    @Autowired
+    private SecurityAlertService securityAlertService;
     /*
      * 客户端断开连接的回调
      */
@@ -45,6 +49,7 @@ public class MqttConsumerCallBack implements MqttCallback{
         pushCallback.deviceMapper = this.deviceMapper;
         pushCallback.deviceTypeMapper = this.deviceTypeMapper;
         pushCallback.mqttSendmessageService = this.mqttSendmessageService;
+        pushCallback.securityAlertService = this.securityAlertService;
     }
 
     @Override
@@ -98,6 +103,21 @@ public class MqttConsumerCallBack implements MqttCallback{
             Long homeId = sensorDevice.getHomeId();
             Long typeId = sensorDevice.getTypeId();
             String typeName = pushCallback.deviceTypeMapper.selectNameById(typeId);
+
+            // 安全传感器检测逻辑
+            if (typeName != null) {
+                // 火焰传感器检测
+                if (typeName.contains("火焰") || typeName.contains("火警")) {
+                    pushCallback.securityAlertService.handleFireAlert(deviceId, homeId, roomId, value);
+                    return;
+                }
+                
+                // 可燃气体传感器检测
+                if (typeName.contains("可燃气体") || typeName.contains("燃气") || typeName.contains("气体")) {
+                    pushCallback.securityAlertService.handleGasAlert(deviceId, homeId, roomId, value);
+                    return;
+                }
+            }
 
             // 人体感应：检测到人体时，开灯（operationId = "1" TurnOn）
             if (typeName != null && typeName.contains("人体") && value > 0) {
