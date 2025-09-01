@@ -184,6 +184,101 @@
 }
 ```
 
+### 5. 获取用户所在家庭
+
+**接口地址**: `GET /home/myHome`
+
+**请求头**: 需要JWT Token
+
+**响应示例**:
+```json
+{
+  "home": [
+    {
+      "homeId": 1,
+      "homeName": "我的家",
+      "role": 0,
+      "roleName": "房主"
+    }
+  ]
+}
+```
+
+**状态码**:
+- `200`: 查询成功
+
+### 6. 更新家庭名称
+
+**接口地址**: `POST /home/{homeId}/updateName`
+
+**请求参数**:
+```json
+{
+  "name": "新家庭名称"
+}
+```
+
+**响应示例**:
+```json
+{
+  "message": "更新成功"
+}
+```
+
+**状态码**:
+- `200`: 更新成功
+- `400`: 家庭名称不能为空
+- `404`: 家庭不存在
+- `500`: 更新失败
+
+### 7. 更新家庭地址
+
+**接口地址**: `POST /home/{homeId}/updateAddress`
+
+**请求参数**:
+```json
+{
+  "address": "新家庭地址"
+}
+```
+
+**响应示例**:
+```json
+{
+  "message": "更新成功"
+}
+```
+
+**状态码**:
+- `200`: 更新成功
+- `400`: 地址不能为空
+- `404`: 家庭不存在
+- `500`: 更新失败
+
+### 8. 搜索家庭
+
+**接口地址**: `GET /home/search?keyword={keyword}`
+
+**请求参数**:
+- `keyword` (query): 搜索关键词
+
+**响应示例**:
+```json
+{
+  "homes": [
+    {
+      "id": 1,
+      "name": "我的家",
+      "address": "北京市朝阳区xxx街道"
+    }
+  ]
+}
+```
+
+**状态码**:
+- `200`: 搜索成功
+- `404`: 没有找到符合条件的家庭
+
 ## 房间管理接口
 
 ### 1. 创建房间
@@ -232,7 +327,14 @@
 
 ### 3. 删除房间
 
-**接口地址**: `DELETE /home/{homeId}/room/delete/{roomId}`
+**接口地址**: `DELETE /home/{homeId}/room/delete`
+
+**请求参数**:
+```json
+{
+  "id": 1
+}
+```
 
 **响应示例**:
 ```json
@@ -240,6 +342,45 @@
   "message": "删除成功"
 }
 ```
+
+**状态码**:
+- `200`: 删除成功
+- `404`: 家庭不存在该房间
+- `500`: 删除失败
+
+### 4. 获取房间设备
+
+**接口地址**: `POST /home/{homeId}/room/device`
+
+**请求参数**:
+```json
+{
+  "id": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "devices": [
+    {
+      "id": 1,
+      "name": "客厅灯",
+      "ipAddress": "192.168.1.100",
+      "homeId": 1,
+      "roomId": 1,
+      "typeId": 1,
+      "onlineStatus": 1,
+      "activeStatus": 1
+    }
+  ],
+  "message": "查看成功"
+}
+```
+
+**状态码**:
+- `200`: 设备查看成功
+- `404`: 房间或设备未找到
 
 ## 设备管理接口
 
@@ -333,9 +474,16 @@
 }
 ```
 
+**状态码**:
+- `200`: 更新成功
+- `400`: 更新失败
+
 ### 5. 删除设备
 
 **接口地址**: `DELETE /home/{homeId}/room/device/delete?id={deviceId}`
+
+**请求参数**:
+- `id` (query): 设备ID
 
 **响应示例**:
 ```json
@@ -345,16 +493,16 @@
 }
 ```
 
+**状态码**:
+- `200`: 删除成功
+- `400`: 删除失败
+
 ### 6. 更新激活设备
 
 **接口地址**: `POST /home/{homeId}/room/device/active`
 
 **请求参数**:
-```json
-{
-  "deviceId": 1
-}
-```
+- `id` (query): 设备ID
 
 **响应示例**:
 ```json
@@ -367,6 +515,10 @@
 ### 7.获取用户可访问设备
 
 **接口地址**: `GET /home/{homeId}/room/device/accessible-devices`
+
+**请求参数**:
+- `userId` (query): 用户ID
+- `homeId` (query): 家庭ID
 
 **响应示例**:
 ```json
@@ -383,9 +535,13 @@
       "activeStatus": 1,
       "lastActiveTime": "2024-01-01T10:00:00"
     }
-    ]
+  ]
 }
 ```
+
+**状态码**:
+- `200`: 查询成功
+- `404`: 没有可访问的设备
 
 
 
@@ -393,48 +549,107 @@
 
 ### 1. 设备操作
 
-**接口地址**: `POST /home/{homeId}/device/operation`
+**接口地址**: `POST /home/{homeId}/device/{deviceId}/operation/{operationId}`
+
+**请求参数**:
+- `deviceId` (path): 设备ID
+- `operationId` (path): 操作ID
+
+**请求头**: 需要JWT Token
+
+**响应示例**:
+```json
+{
+  "message": "命令已发送"
+}
+```
+
+**状态码**:
+- `200`: 命令已发送
+- `404`: 设备未在线
+
+### 2. 移动设备
+
+**接口地址**: `POST /home/{homeId}/device/move`
 
 **请求参数**:
 ```json
 {
   "deviceId": 1,
-  "operationId": 1,
-  "parameters": {
-    "brightness": 80,
-    "color": "#FF0000"
-  }
+  "roomId": 2
 }
 ```
 
 **响应示例**:
 ```json
 {
-  "message": "操作成功"
+  "message": "设备移动成功"
 }
 ```
 
-### 2. 获取设备操作列表
+**状态码**:
+- `200`: 设备移动成功
+- `400`: 请求参数错误或运行时错误
+- `500`: 设备移动失败或服务器错误
 
-**接口地址**: `GET /home/{homeId}/device/{deviceId}/operations`
+### 3. 连接设备
+
+**接口地址**: `POST /home/{homeId}/device/connect`
+
+**请求参数**: 无
 
 **响应示例**:
 ```json
 {
-  "operations": [
+  "message": "设备连接成功"
+}
+```
+
+**状态码**:
+- `200`: 设备连接成功
+
+### 4. 断开设备连接
+
+**接口地址**: `POST /home/{homeId}/device/disconnect`
+
+**请求参数**: 无
+
+**响应示例**:
+```json
+{
+  "message": "设备断开连接成功"
+}
+```
+
+**状态码**:
+- `200`: 设备断开连接成功
+
+### 5. 获取设备数据
+
+**接口地址**: `GET /home/{homeId}/device/{deviceId}/getData`
+
+**请求参数**:
+- `deviceId` (path): 设备ID
+
+**响应示例**:
+```json
+{
+  "data": [
     {
       "id": 1,
-      "name": "开关",
-      "description": "设备的开关操作"
-    },
-    {
-      "id": 2,
-      "name": "调节亮度",
-      "description": "调节设备亮度"
+      "deviceId": 1,
+      "data": "设备数据内容",
+      "timestamp": "2024-01-01T10:00:00"
     }
   ]
 }
 ```
+
+**状态码**:
+- `200`: 获取数据成功
+- `404`: 没有任何数据信息
+
+
 
 ## 场景管理接口
 
@@ -489,27 +704,11 @@
 }
 ```
 
-### 3. 启动场景
 
-**接口地址**: `POST /home/{homeId}/scene/start`
-
-**请求参数**:
-```json
-{
-  "sceneId": 1
-}
-```
-
-**响应示例**:
-```json
-{
-  "message": "场景启动成功"
-}
-```
 
 ### 4. 获取场景列表
 
-**接口地址**: `GET /home/{homeId}/scene/list`
+**接口地址**: `GET /home/{homeId}/scene/view`
 
 **响应示例**:
 ```json
@@ -538,16 +737,108 @@
 }
 ```
 
-## 成员管理接口
+**状态码**:
+- `200`: 删除成功
+- `404`: 场景不存在
+- `500`: 删除场景失败
 
-### 1. 添加家庭成员
+### 3. 启动场景
 
-**接口地址**: `POST /home/{homeId}/member/add`
+**接口地址**: `POST /home/{homeId}/scene/start`
 
 **请求参数**:
 ```json
 {
-  "phone": "13800138001",
+  "sceneId": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "message": "场景已开启",
+  "设备开启情况": {
+    "1": "已执行",
+    "2": "未在线"
+  }
+}
+```
+
+**状态码**:
+- `200`: 启动成功
+- `404`: 场景不存在
+- `500`: 启动失败
+
+### 4. 停止场景
+
+**接口地址**: `POST /home/{homeId}/scene/stop`
+
+**请求参数**:
+```json
+{
+  "sceneId": 1
+}
+```
+
+**响应示例**:
+```json
+{
+  "message": "场景已关闭"
+}
+```
+
+**状态码**:
+- `200`: 停止成功
+- `404`: 场景不存在
+- `500`: 停止失败
+
+### 5. 更新场景
+
+**接口地址**: `POST /home/{homeId}/scene/update/{sceneId}`
+
+**请求参数**:
+```json
+{
+  "name": "回家模式",
+  "description": "回家后自动开启灯光和空调",
+  "status": 1,
+  "startTime": "2024-01-01T18:00:00",
+  "endTime": "2024-01-01T22:00:00",
+  "deviceOperation": [
+    {
+      "deviceId": 1,
+      "deviceOperationId": 1,
+      "parameters": {
+        "brightness": 100
+      }
+    }
+  ]
+}
+```
+
+**响应示例**:
+```json
+{
+  "message": "更新场景成功"
+}
+```
+
+**状态码**:
+- `201`: 修改成功
+- `404`: 场景不存在
+- `500`: 修改失败
+
+## 成员管理接口
+
+### 1. 添加家庭成员
+
+**接口地址**: `POST /home/member/add`
+
+**请求参数**:
+```json
+{
+  "userId": 1,
+  "homeId": 1,
   "role": 1
 }
 ```
@@ -559,91 +850,19 @@
 }
 ```
 
-### 2. 获取家庭成员列表
-
-**接口地址**: `GET /home/{homeId}/member/list`
-
-**响应示例**:
-```json
-{
-  "members": [
-    {
-      "userId": 1,
-      "username": "张三",
-      "phone": "13800138000",
-      "role": 0,
-      "roleName": "房主"
-    },
-    {
-      "userId": 2,
-      "username": "李四",
-      "phone": "13800138001",
-      "role": 1,
-      "roleName": "家庭成员"
-    }
-  ]
-}
-```
-
-### 3. 移除家庭成员
-
-**接口地址**: `DELETE /home/{homeId}/member/remove/{userId}`
-
-**响应示例**:
-```json
-{
-  "message": "移除成功"
-}
-```
-
-### 4. 更新成员角色
-
-**接口地址**: `POST /home/{homeId}/member/role/update`
-
-**请求参数**:
-```json
-{
-  "userId": 2,
-  "newRole": 2
-}
-```
-
-**响应示例**:
-```json
-{
-  "message": "角色更新成功"
-}
-```
+**说明**: 家庭成员信息通过查看家庭详情接口获取，该接口返回家庭的所有成员信息。
 
 ## 权限管理接口
 
-### 1. 获取用户权限
+### 1. 添加用户权限
 
-**接口地址**: `GET /home/{homeId}/permission/user/{userId}`
-
-**响应示例**:
-```json
-{
-  "permissions": [
-    {
-      "deviceId": 1,
-      "deviceName": "客厅灯",
-      "operationId": 1,
-      "operationName": "开关",
-      "hasPermission": true
-    }
-  ]
-}
-```
-
-### 2. 设置用户权限
-
-**接口地址**: `POST /home/{homeId}/permission/set`
+**接口地址**: `POST /permission/add`
 
 **请求参数**:
 ```json
 {
-  "userId": 2,
+  "id": 1,
+  "userId": 1,
   "deviceId": 1,
   "operationId": 1,
   "hasPermission": true,
@@ -654,35 +873,62 @@
 **响应示例**:
 ```json
 {
-  "message": "权限设置成功"
+  "message": "添加权限成功"
 }
 ```
 
-## 访客管理接口
+**状态码**:
+- `201`: 添加权限成功
+- `409`: 该用户已拥有此权限
+- `500`: 添加权限失败
 
-### 1. 获取访客记录
+### 2. 取消用户权限
 
-**接口地址**: `GET /home/{homeId}/guest/records`
+**接口地址**: `DELETE /permission/cancel`
+
+**请求参数**:
+```json
+{
+  "id": 1
+}
+```
 
 **响应示例**:
 ```json
 {
-  "records": [
-    {
-      "id": 1,
-      "userId": 3,
-      "username": "访客",
-      "recordType": 0,
-      "recordTypeName": "进入",
-      "recordTime": "2024-01-01T10:00:00"
-    }
-  ]
+  "message": "取消权限成功"
 }
 ```
 
+**状态码**:
+- `200`: 取消权限成功
+- `409`: 该用户未拥有此权限
+- `500`: 取消权限失败
+
+## 访客管理接口
+
+### 1. 发起加入家庭申请
+
+**接口地址**: `POST /home/{homeId}/request/put`
+
+**请求参数**: 无
+
+**响应示例**:
+```json
+{
+  "message": "申请成功"
+}
+```
+
+**状态码**:
+- `200`: 申请成功/已发送过申请
+- `404`: 该家庭不存在
+- `409`: 已加入该家庭
+- `500`: 申请失败
+
 ### 2. 获取进入请求列表
 
-**接口地址**: `GET /home/{homeId}/enter-request/list`
+**接口地址**: `GET /home/{homeId}/request/receive`
 
 **响应示例**:
 ```json
@@ -700,44 +946,103 @@
 }
 ```
 
+**状态码**:
+- `200`: 获取成功
+- `404`: 该家庭不存在/没有加入家庭的申请
+
 ### 3. 处理进入请求
 
-**接口地址**: `POST /home/{homeId}/enter-request/handle`
+**接口地址**: `POST /home/{homeId}/request/receive/handle`
 
 **请求参数**:
 ```json
 {
   "requestId": 1,
-  "action": "approve"
+  "userId": 3,
+  "status": 1
 }
 ```
 
 **响应示例**:
 ```json
 {
-  "message": "请求已通过"
+  "message": "处理成功"
 }
 ```
 
+**状态码**:
+- `200`: 处理成功
+- `404`: 申请不存在或已取消
+- `500`: 处理失败
+
 ## 聊天接口
 
-### 1. 发送聊天消息
+**说明**: 系统提供AI聊天功能，通过AI聊天接口与用户进行智能对话。
 
-**接口地址**: `POST /home/{homeId}/chat`
+## AI 聊天接口
+
+### 1. AI 聊天流式接口
+
+**接口地址**: `POST /home/{homeId}/ai/chat`
 
 **请求参数**:
 ```json
 {
-  "message": "你好，智能家居"
+  "input": "你好，智能家居"
 }
 ```
 
+**请求头**: 需要JWT Token
+
+**响应格式**: Server-Sent Events (SSE)
+
 **响应示例**:
-```json
-{
-  "response": "你好！我是你的智能家居助手，有什么可以帮助你的吗？"
-}
 ```
+data: 你好！我是你的智能家居AI助手
+data: 我可以帮你控制设备、设置场景等
+data: 有什么可以帮助你的吗？
+```
+
+**状态码**:
+- `200`: 聊天响应流式返回成功
+- `500`: 服务异常
+
+**说明**:
+- 使用火山引擎 Ark API
+- 支持流式响应，实时返回 AI 回复
+- 超时时间设置为 5 分钟
+- 输入长度限制为 2000 字符
+- 需要用户认证
+
+## AI 指导服务接口
+
+### 1. 流式聊天指导
+
+**接口地址**: `GET /guidance/stream`
+
+**请求参数**:
+- `message` (query): 用户输入的消息内容
+
+**请求头**: 无需认证
+
+**响应格式**: Server-Sent Events (SSE)
+
+**响应示例**:
+```
+data: 你好！我是你的AI助手，有什么可以帮助你的吗？
+data: 我可以帮你解答关于智能家居的问题
+data: 或者提供其他方面的帮助
+```
+
+**状态码**:
+- `200`: 连接成功，开始流式响应
+- `500`: 服务器内部错误
+
+**说明**:
+- 使用阿里云百炼 API (qwen-max 模型)
+- 支持流式响应，实时返回 AI 回复
+- 超时时间设置为 60 秒
+- 无需用户认证，可直接访问
 
 ## 错误码说明
 
@@ -783,6 +1088,9 @@ Authorization: Bearer {token}
 - **v1.0.0** (2024-01-01): 初始版本，包含基础功能接口
 - **v1.1.0** (2024-01-15): 新增场景管理和权限控制接口
 - **v1.2.0** (2024-02-01): 新增访客管理和聊天功能接口
+- **v1.3.0** (2024-12-19): 新增AI指导服务接口，完善设备交互接口
+- **v1.4.0** (2024-12-19): 重大更新，全面修正API接口路径和参数，新增多个缺失接口，包括AI聊天、场景管理、权限管理等
+- **v1.4.1** (2024-12-19): 修正场景管理接口编号，删除重复和不存在的接口，完善接口参数和状态码说明
 
 ---
 
