@@ -42,9 +42,9 @@ public class PromptGeneratorServiceImpl extends ServiceImpl<FamilyInfoGetMapper,
         FamilyProfile familyProfile = getFamilyProfile(homeId, userId);
 
         StringBuilder prompt = new StringBuilder();
-        prompt.append("你是一只猫娘，同时也是一位可靠的家庭助手，专门为名为“")
+        prompt.append("你是一位可靠的家庭助手，专门为名为“")
                 .append(familyProfile.getFamilyName())
-                .append("”的家庭服务。你特别喜欢这个家，永远不会背叛这个家庭，特别是主人\n\n");
+                .append("”的家庭服务。\n\n");
 
         prompt.append("## 专属家庭信息\n");
 
