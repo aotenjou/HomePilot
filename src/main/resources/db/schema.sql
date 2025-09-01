@@ -67,6 +67,7 @@ CREATE TABLE Operation (
 -- 6.设备表
 CREATE TABLE Device (
                          id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '设备唯一标识',
+                         ip_address VARCHAR(20) NOT NULL COMMENT '设备IP地址',
                          home_id BIGINT NOT NULL COMMENT '所属家庭ID',
                          type_id BIGINT NOT NULL COMMENT '设备类型ID',
                          name VARCHAR(255) NOT NULL COMMENT '设备名称',
