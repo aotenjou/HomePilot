@@ -28,6 +28,10 @@
     <select id="selectByHomeId" resultType="com.example.manager.entity.Device">
         select * from Device where home_id = #{homeId} and is_deleted = 0
     </select>
+    
+    <select id="selectDevicesByHomeId" resultType="com.example.manager.entity.Device">
+        select * from Device where home_id = #{homeId} and is_deleted = 0
+    </select>
 
     <select id="selectByRoomIdAndHomeId" resultType="com.example.manager.entity.Device">
         SELECT * FROM Device WHERE room_id = #{roomId} AND home_id = #{homeId} AND is_deleted = 0

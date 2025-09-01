@@ -6,6 +6,7 @@ import com.example.manager.entity.Mqttdata;
 import com.example.manager.mqtt.Service.MqttConnectService;
 import com.example.manager.mqtt.Service.MqttSendmessageService;
 import com.example.manager.service.DeviceInteractService;
+import com.example.manager.service.DevicePermissionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -33,6 +34,9 @@ public class DeviceInteractController {
 
     @Autowired
     private MqttConnectService mqttConnectService;
+    
+    @Autowired
+    private DevicePermissionService devicePermissionService;
 
     @Operation(
             summary = "发送设备操作命令",
@@ -46,8 +50,15 @@ public class DeviceInteractController {
     public ResponseEntity<Map<String, Object>> sendCommand(@Parameter(description = "当前用户ID（从请求属性获取）") @RequestAttribute("currentUserId") Long userId,
                                                            @PathVariable("deviceId") Long deviceId,
                                                            @PathVariable("operationId") Long operationId,
+                                                           @PathVariable("homeId") Long homeId,
                                                            @RequestHeader HttpHeaders headers) {
         Map<String, Object> response = new HashMap<>();
+
+        // 检查用户权限
+        if (!devicePermissionService.checkDevicePermission(userId, homeId, deviceId, operationId)) {
+            response.put("message", "没有权限进行此操作");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        }
 
         if(!deviceInteractService.checkDeviceOnlineStatus(deviceId)) {
             response.put("message", "设备未在线");

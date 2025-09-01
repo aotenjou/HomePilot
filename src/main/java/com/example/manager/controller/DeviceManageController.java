@@ -3,6 +3,7 @@ package com.example.manager.controller;
 import com.example.manager.entity.Device;
 import com.example.manager.entity.DeviceType;
 import com.example.manager.service.DeviceManageService;
+import com.example.manager.service.DevicePermissionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -26,6 +27,9 @@ public class DeviceManageController {
 
     @Autowired
     private DeviceManageService deviceService;
+    
+    @Autowired
+    private DevicePermissionService devicePermissionService;
 
     @Operation(
             summary = "获取设备类型列表",
@@ -140,12 +144,14 @@ public class DeviceManageController {
     public ResponseEntity<Map<String, Object>> getAccessibleDevices(@RequestParam Long userId,
                                                              @RequestParam Long homeId) {
         Map<String, Object> response = new HashMap<>();
-        List<Device> devices = deviceService.getDevicesByUserAndHome(userId, homeId);
+        List<Device> devices = devicePermissionService.getAccessibleDevices(userId, homeId);
         if (devices.isEmpty()) {
             response.put("message", "没有可访问的设备");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
         response.put("devices", devices);
+        response.put("userRole", devicePermissionService.getUserRole(userId, homeId));
+        response.put("isGuest", devicePermissionService.isGuestUser(userId, homeId));
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }
