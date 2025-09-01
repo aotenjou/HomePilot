@@ -1,8 +1,0 @@
-<!DOCTYPE mapper
-        PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
-        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.example.manager.mapper.RoleDefaultPermissionMapper">
-    <select id="selectPermission" resultType="com.example.manager.entity.RoleDefaultPermission">
-        select has_permission from role_default_permission where role = #{role} and device_id = #{deviceId} and operation_id = #{operationId} AND is_deleted = 0
-    </select>
-</mapper>
