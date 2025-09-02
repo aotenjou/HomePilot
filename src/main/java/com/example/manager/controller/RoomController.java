@@ -57,7 +57,7 @@ public class RoomController {
             @ApiResponse(responseCode = "200", description = "设备查看成功"),
             @ApiResponse(responseCode = "404", description = "房间或设备未找到")
     })
-    @GetMapping("/device")
+    @PostMapping("/device")
     public ResponseEntity<Map<String, Object>> getDevice(@RequestBody Room request,
                                                          @Parameter(description = "家庭ID", required = true)@PathVariable("homeId") Long homeId,
                                                          @RequestHeader HttpHeaders headers) {

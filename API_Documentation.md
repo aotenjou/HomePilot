@@ -504,6 +504,11 @@
 **请求参数**:
 - `id` (query): 设备ID
 
+**请求示例**:
+```bash
+POST /home/1/room/device/active?id=1
+```
+
 **响应示例**:
 ```json
 {
