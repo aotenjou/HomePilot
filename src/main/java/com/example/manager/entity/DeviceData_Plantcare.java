@@ -9,4 +9,20 @@ public class DeviceData_Plantcare{
 
     @TableField("illumination")
     private Integer illumination;
+
+    public Integer getHumidity() {
+        return humidity;
+    }
+
+    public void setHumidity(Integer humidity) {
+        this.humidity = humidity;
+    }
+
+    public Integer getIllumination() {
+        return illumination;
+    }
+
+    public void setIllumination(Integer illumination) {
+        this.illumination = illumination;
+    }
 }

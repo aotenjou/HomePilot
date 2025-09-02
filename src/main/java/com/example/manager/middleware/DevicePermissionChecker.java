@@ -74,7 +74,7 @@ public class DevicePermissionChecker {
 
         Integer roleCode = userHomeMapper.selectRoleByUserIdAndHomeId(userId, homeId);
 
-        if(!roleDefaultPermissionMapper.selectPermission(roleCode, deviceId, operationId)) {
+        if(roleDefaultPermissionMapper.selectPermission(roleCode, deviceId, operationId)==null) {
             logger.warn("User {} does not have permission to access device {}.", userId, deviceId);
             return false;
         }

@@ -18,7 +18,7 @@ import java.util.Map;
 @Tag(name = "权限管理接口", description = "用户权限的添加和取消相关接口")
 @RestController
 @RequestMapping("/permission")
-public class PermissionController {
+public class  PermissionController {
     @Autowired
     private PermissionService permissionService;
 
