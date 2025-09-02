@@ -286,10 +286,6 @@ public class DevicePermissionServiceTest {
         customPermission.setOperationId(OPERATION_ID);
         customPermission.setHasPermission(false);
 
-        // 模拟家庭成员角色
-        when(userHomeMapper.selectRoleByUserIdAndHomeId(USER_ID, HOME_ID))
-                .thenReturn(UserHome.Role.MEMBER.getCode());
-
         // 模拟有自定义权限（禁止访问）
         when(userCustomPermissionMapper.selectPermission(USER_ID, DEVICE_ID, OPERATION_ID))
                 .thenReturn(customPermission);
@@ -377,28 +373,48 @@ public class DevicePermissionServiceTest {
     }
 
     /**
-     * 测试判断用户是否为访客
+     * 测试判断用户是否为访客 - 访客用户
      */
     @Test
-    void testIsGuestUser() {
-        logger.info("测试判断用户是否为访客");
+    void testIsGuestUser_Guest() {
+        logger.info("测试判断用户是否为访客 - 访客用户");
 
         // 测试访客用户
         when(userHomeMapper.selectRoleByUserIdAndHomeId(USER_ID, HOME_ID))
                 .thenReturn(UserHome.Role.GUEST.getCode());
+
         assertTrue(devicePermissionService.isGuestUser(USER_ID, HOME_ID), "应该识别出访客用户");
+        logger.info("访客用户身份判断测试通过");
+    }
+
+    /**
+     * 测试判断用户是否为访客 - 非访客用户（房主）
+     */
+    @Test
+    void testIsGuestUser_Host() {
+        logger.info("测试判断用户是否为访客 - 房主");
 
         // 测试非访客用户（房主）
         when(userHomeMapper.selectRoleByUserIdAndHomeId(USER_ID, HOME_ID))
                 .thenReturn(UserHome.Role.HOST.getCode());
+
         assertFalse(devicePermissionService.isGuestUser(USER_ID, HOME_ID), "不应该将房主识别为访客");
+        logger.info("房主身份判断测试通过");
+    }
+
+    /**
+     * 测试判断用户是否为访客 - 非访客用户（家庭成员）
+     */
+    @Test
+    void testIsGuestUser_Member() {
+        logger.info("测试判断用户是否为访客 - 家庭成员");
 
         // 测试非访客用户（家庭成员）
         when(userHomeMapper.selectRoleByUserIdAndHomeId(USER_ID, HOME_ID))
                 .thenReturn(UserHome.Role.MEMBER.getCode());
-        assertFalse(devicePermissionService.isGuestUser(USER_ID, HOME_ID), "不应该将家庭成员识别为访客");
 
-        logger.info("用户访客身份判断测试通过");
+        assertFalse(devicePermissionService.isGuestUser(USER_ID, HOME_ID), "不应该将家庭成员识别为访客");
+        logger.info("家庭成员身份判断测试通过");
     }
 
     /**
