@@ -20,3 +20,4 @@ public interface DeviceDataService {
      */
     List<DeviceData_Plantcare> getRecentPlantData(Long deviceId, int limit);
 }
+
