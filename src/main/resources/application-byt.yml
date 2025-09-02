@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8080  # 确保云服务器安全组已开放此端口
 
 jwt:
   secret-key: 'lingganguliguliguliguajialinggangulinggangu'
@@ -11,30 +11,27 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/manager
-    username: root
+    url: jdbc:mysql://8.130.88.98:3306/manager
+    username: manager
     password: '123321'
+
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: update  # 生产环境建议改为 validate
     show-sql: true
     properties:
       hibernate:
         format_sql: true
+        dialect: org.hibernate.dialect.MySQL8Dialect  # 显式指定方言
 
   mqtt:
-    #MQTT服务地址，端口号默认11883，如果有多个，用逗号隔开
     url: tcp://117.72.63.151:1883
-    #用户名
     username: admin
-    #密码
     password: public
-    #客户端id(不能重复)
     client:
-      id: client-id
+      id: client-id-${random.uuid}  # 建议增加随机后缀避免重复
       providerid: provider-id
       consumerid: consumer-id
-    #MQTT默认的消息推送主题，实际可在调用接口是指定
     default:
       topic: topic
 
@@ -56,8 +53,6 @@ ark:
     temperature: 0.7
     max_tokens: 1024
 
-
 logging:
   level:
     com.example.homework.mapper: debug
-
