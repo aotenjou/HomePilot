@@ -34,7 +34,7 @@ if errorlevel 1 (
 
 echo.
 echo [4/4] 运行设备权限相关测试...
-call mvn test -Dtest=DevicePermissionServiceTest,DevicePermissionControllerTest -q
+call mvn test -Dtest=DevicePermissionServiceTest,DevicePermissionControllerTest,RoomPermissionTest,DeviceManagementPermissionTest,RoleBasedPermissionIntegrationTest -q
 if errorlevel 1 (
     echo 测试执行失败，请查看测试结果
     pause
