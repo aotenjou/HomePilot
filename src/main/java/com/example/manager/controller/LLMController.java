@@ -1,6 +1,7 @@
 package com.example.manager.controller;
 
 import com.example.manager.DTO.ChatRequest;
+import com.example.manager.DTO.PlantCareRequest;
 import com.example.manager.service.PromptGeneratorService;
 import com.example.manager.service.serviceImpl.PromptGeneratorServiceImpl;
 import com.volcengine.ark.runtime.model.completion.chat.ChatCompletionRequest;
@@ -135,5 +136,24 @@ public class LLMController {
 
         return emitter;
     }
+
+    @Operation(
+            summary = "植物护理建议",
+            description = "使用大模型提供植物护理建议，返回 String"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "返回植物护理建议成功"),
+            @ApiResponse(responseCode = "500", description = "服务异常")
+    })
+    @GetMapping(path="/plantCare",produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter plantCare(@RequestBody PlantCareRequest request,
+                                @Parameter(hidden = true)@RequestAttribute("currentUserId") Long userId,
+                                @Parameter(description = "家庭ID", required = true)@PathVariable("homeId")Long homeId,
+                                @RequestHeader HttpHeaders headers){
+
+        SseEmitter emitter = new SseEmitter(5 * 60 * 1000L);
+        return emitter;
+    }
+
 
 }

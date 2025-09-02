@@ -166,6 +166,7 @@ CREATE TABLE Device_In_Scene(
                                  is_deleted BOOLEAN NOT NULL DEFAULT FALSE
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='场景设备表';
 
+
 -- 插入的测试数据
 INSERT INTO Device_Type (name, description) VALUES
 ('灯', '照到哪里哪里亮'),
@@ -181,10 +182,10 @@ INSERT INTO Device_Type (name, description) VALUES
 ('洗衣机', '真的会有人手洗衣服吗'),
 ('洗碗机','就算有了这个还是得自己洗');
 
-INSERT INTO Device (home_id, type_id, name, online_status, active_status, last_active_time, room_id) VALUES
-(1, 1, 'LED灯', 0, 0, NOW(), 1),
-(1, 4, '撤硕大门', 0, 0, NOW(), 1),
-(1, 5, '土壤湿度检测', 0, 0, NOW(), 1)
+INSERT INTO Device (home_id, ip_address,type_id, name, online_status, active_status, last_active_time, room_id) VALUES
+(1, 0,1, 'LED灯', 0, 0, NOW(), 1),
+(1, 0,4, '撤硕大门', 0, 0, NOW(), 1),
+(1, 0,5, '土壤湿度检测', 0, 0, NOW(), 1)
 ;
 
 CREATE TABLE Device_Data (
