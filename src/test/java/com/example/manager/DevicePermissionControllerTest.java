@@ -1,4 +1,4 @@
-package test.java.com.example.manager;
+package com.example.manager;
 
 import com.example.manager.controller.GuestPermissionController;
 import com.example.manager.entity.Device;
