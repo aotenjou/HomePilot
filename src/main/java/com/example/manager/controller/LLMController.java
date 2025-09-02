@@ -2,6 +2,9 @@ package com.example.manager.controller;
 
 import com.example.manager.DTO.ChatRequest;
 import com.example.manager.DTO.PlantCareRequest;
+import com.example.manager.entity.DeviceData_Plantcare;
+import com.example.manager.service.DeviceDataService;
+import com.example.manager.service.PlantPromptGeneratorService;
 import com.example.manager.service.PromptGeneratorService;
 import com.example.manager.service.serviceImpl.PromptGeneratorServiceImpl;
 import com.volcengine.ark.runtime.model.completion.chat.ChatCompletionRequest;
@@ -40,6 +43,12 @@ import java.util.concurrent.Executors;
 public class LLMController {
     @Autowired
     PromptGeneratorService promptGeneratorService;
+
+    @Autowired
+    DeviceDataService deviceDataService;
+
+    @Autowired
+    PlantPromptGeneratorService plantPromptGeneratorService;
 
     @Value("${ark.api.key}")
     private String apiKey;
@@ -137,9 +146,11 @@ public class LLMController {
         return emitter;
     }
 
+
+
     @Operation(
             summary = "植物护理建议",
-            description = "使用大模型提供植物护理建议，返回 String"
+            description = "使用大模型提供植物护理建议，返回流式数据"
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "返回植物护理建议成功"),
@@ -151,7 +162,76 @@ public class LLMController {
                                 @Parameter(description = "家庭ID", required = true)@PathVariable("homeId")Long homeId,
                                 @RequestHeader HttpHeaders headers){
 
+        // 获取最新的植物数据
+        DeviceData_Plantcare plantData = null;
+        if (request.getDeviceId() != null) {
+            plantData = deviceDataService.getLatestPlantData(request.getDeviceId());
+        }
+
+        // 生成植物护理prompt
+        String prompt = plantPromptGeneratorService.generatePlantCarePrompt(plantData, request.getInput());
+
         SseEmitter emitter = new SseEmitter(5 * 60 * 1000L);
+
+        executor.execute(() -> {
+            try {
+                ArkService arkService = ArkService.builder().apiKey(apiKey).build();
+
+                List<ChatMessage> plantCareMessages = new ArrayList<>();
+
+                ChatMessage systemMessage = ChatMessage.builder()
+                        .role(ChatMessageRole.SYSTEM)
+                        .content(prompt)
+                        .build();
+
+                ChatMessage userMessage = ChatMessage.builder()
+                        .role(ChatMessageRole.USER)
+                        .content("请根据当前植物数据为我提供护理建议。")
+                        .build();
+
+                plantCareMessages.add(systemMessage);
+                plantCareMessages.add(userMessage);
+
+                ChatCompletionRequest plantCareRequest = ChatCompletionRequest.builder()
+                        .model(model)
+                        .messages(plantCareMessages)
+                        .temperature(temperature)
+                        .maxTokens(maxTokens)
+                        .stream(true)
+                        .build();
+
+                arkService.streamChatCompletion(plantCareRequest)
+                        .doOnError(throwable -> {
+                            try {
+                                emitter.completeWithError(throwable);
+                            } catch (Exception e) {
+                                log.error("Error occurred: {}", throwable.getMessage());
+                            } finally {
+                                emitter.completeWithError(throwable);
+                            }
+                        })
+                        .blockingForEach(response -> {
+                            if(response.getChoices() != null && !response.getChoices().isEmpty()) {
+                                Object message = response.getChoices().get(0).getMessage().getContent();
+                                if(message != null) {
+                                    emitter.send(SseEmitter.event()
+                                            .data(message)
+                                            .id(String.valueOf(System.currentTimeMillis()))
+                                    );
+                                }
+                            }
+                        });
+                emitter.complete();
+            } catch (Exception e) {
+                log.error("Plant care processing error: {}", e.getMessage());
+                emitter.completeWithError(e);
+            }
+        });
+
+        emitter.onCompletion(() -> System.out.println("植物护理SSE 完成"));
+        emitter.onTimeout(() -> System.out.println("植物护理SSE 超时"));
+        emitter.onError(throwable -> System.out.println("植物护理SSE 错误: " + throwable.getMessage()));
+
         return emitter;
     }
 
