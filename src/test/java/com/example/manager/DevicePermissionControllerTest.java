@@ -11,10 +11,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 /**
@@ -176,7 +178,7 @@ public class DevicePermissionControllerTest {
         assertEquals("GUEST", body.get("role"));
         assertEquals("访客用户", body.get("description"));
         assertNotNull(body.get("restrictions"));
-        assertNotNull(body.get("accessibleDeviceTypes"));
+        assertEquals(Arrays.asList(5L, 6L), body.get("accessibleDeviceTypes"));
         assertEquals(Arrays.asList(1L, 2L), body.get("allowedOperations"));
     }
 
