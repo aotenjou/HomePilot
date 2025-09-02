@@ -1,15 +1,12 @@
-package test.java.com.example.manager;
+package com.example.manager;
 
 import com.example.manager.controller.DeviceManageController;
 import com.example.manager.controller.GuestPermissionController;
-import com.example.manager.controller.RoomController;
 import com.example.manager.entity.Device;
 import com.example.manager.entity.UserHome;
 import com.example.manager.mapper.UserHomeMapper;
 import com.example.manager.service.DeviceManageService;
 import com.example.manager.service.DevicePermissionService;
-import com.example.manager.service.HomeService;
-import com.example.manager.service.RoomService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -40,11 +37,7 @@ public class RoleBasedPermissionIntegrationTest {
     @Mock
     private DevicePermissionService devicePermissionService;
 
-    @Mock
-    private RoomService roomService;
 
-    @Mock
-    private HomeService homeService;
 
     @Mock
     private UserHomeMapper userHomeMapper;
@@ -54,9 +47,6 @@ public class RoleBasedPermissionIntegrationTest {
 
     @InjectMocks
     private GuestPermissionController guestPermissionController;
-
-    @InjectMocks
-    private RoomController roomController;
 
     private static final Long USER_ID = 1L;
     private static final Long HOME_ID = 1L;

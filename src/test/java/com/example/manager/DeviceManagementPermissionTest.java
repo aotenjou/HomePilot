@@ -1,4 +1,4 @@
-package test.java.com.example.manager;
+package com.example.manager;
 
 import com.example.manager.controller.DeviceManageController;
 import com.example.manager.entity.Device;
@@ -35,8 +35,7 @@ public class DeviceManagementPermissionTest {
     @Mock
     private DeviceManageService deviceService;
 
-    @Mock
-    private DevicePermissionService devicePermissionService;
+
 
     @Mock
     private UserHomeMapper userHomeMapper;

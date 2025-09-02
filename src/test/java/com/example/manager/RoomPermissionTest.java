@@ -1,4 +1,4 @@
-package test.java.com.example.manager;
+package com.example.manager;
 
 import com.example.manager.DTO.CreateRoomRequest;
 import com.example.manager.controller.RoomController;
