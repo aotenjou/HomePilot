@@ -9,7 +9,6 @@ import com.example.manager.mapper.DeviceMapper;
 import com.example.manager.mapper.SceneDeviceViewMapper;
 import com.example.manager.mapper.SceneMapper;
 import com.example.manager.service.SceneService;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,21 +38,29 @@ public class SceneServiceImpl extends ServiceImpl<SceneMapper, Scene> implements
 
     @Override
     public void createScene(Long userId, Long homeId, String name, String description, Integer status, LocalDateTime startTime, LocalDateTime endTime, List<OperationOfDevice> deviceOperation) {
-        sceneMapper.createScene(userId, homeId, name, description, status, startTime, endTime);
+        sceneMapper.insertScene(userId, homeId, name, description, status, startTime, endTime);
 
         Long sceneId = sceneMapper.selectLastInsertId();
 
-        deviceInSceneMapper.createDeviceInScene(deviceOperation, sceneId);
+        // 过滤无效设备操作，避免 NULL 插入导致约束异常
+        List<OperationOfDevice> validOperations = deviceOperation == null ? List.of() :
+                deviceOperation.stream()
+                        .filter(op -> op != null && op.getDeviceId() != null && op.getOperationId() != null)
+                        .toList();
+
+        if (!validOperations.isEmpty()) {
+            deviceInSceneMapper.createDeviceInScene(validOperations, sceneId);
+        }
     }
 
     @Override
     public void createSceneWithoutDevice(Long userId, Long homeId, String name, String description, Integer status, LocalDateTime startTime, LocalDateTime endTime) {
-        sceneMapper.createScene(userId, homeId, name, description, status, startTime, endTime);
+        sceneMapper.insertScene(userId, homeId, name, description, status, startTime, endTime);
     }
 
     @Override
     public boolean checkScene(Long id) {
-        Scene scene = sceneMapper.selectById(id);
+        Scene scene = sceneMapper.selectActiveById(id);
         return scene != null;
     }
 
@@ -86,9 +93,17 @@ public class SceneServiceImpl extends ServiceImpl<SceneMapper, Scene> implements
         scene.setEndTime(endTime);
         sceneMapper.updateScene(scene);
 
-        deviceInSceneMapper.deleteDeviceNotInScene(sceneId, deviceOperation);
-        deviceInSceneMapper.createDeviceInScene(deviceOperation, sceneId);
-        deviceInSceneMapper.updateDeviceInScene(sceneId, deviceOperation);
+        // 过滤有效操作
+        List<OperationOfDevice> validOperations = deviceOperation == null ? List.of() :
+                deviceOperation.stream()
+                        .filter(op -> op != null && op.getDeviceId() != null && op.getOperationId() != null)
+                        .toList();
+
+        deviceInSceneMapper.deleteDeviceNotInScene(sceneId, validOperations);
+        if (!validOperations.isEmpty()) {
+            deviceInSceneMapper.createDeviceInScene(validOperations, sceneId);
+            deviceInSceneMapper.updateDeviceInScene(sceneId, validOperations);
+        }
     }
 
     @Override

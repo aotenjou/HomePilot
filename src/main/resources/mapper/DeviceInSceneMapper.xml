@@ -5,10 +5,12 @@
 <mapper namespace="com.example.manager.mapper.DeviceInSceneMapper">
 
     <insert id="createDeviceInScene">
-        INSERT INTO device_in_scene(device_id, operation_id, scene_id) VALUES
-        <foreach item="item" index="index" collection="deviceOperation" separator=",">
-            (#{item.deviceId}, #{item.operationId}, #{sceneId})
-        </foreach>
+        <if test="deviceOperation != null and deviceOperation.size() > 0">
+            INSERT INTO Device_In_Scene(device_id, operation_id, scene_id) VALUES
+            <foreach item="item" index="index" collection="deviceOperation" separator=",">
+                (#{item.deviceId}, #{item.operationId}, #{sceneId})
+            </foreach>
+        </if>
     </insert>
 
     <delete id="deleteDeviceInScene">
@@ -20,16 +22,19 @@
     </select>
 
     <delete id="deleteDeviceNotInScene">
-        DELETE FROM device_in_scene WHERE device_id NOT IN
-        <foreach item="item" index="index" collection="deviceOperation" separator=","  open="(" close=")">
-            #{item.deviceId}
-        </foreach>
-        AND scene_id = #{sceneId}
+        DELETE FROM Device_In_Scene
+        WHERE scene_id = #{sceneId}
         AND is_deleted = 0
+        <if test="deviceOperation != null and deviceOperation.size() > 0">
+            AND device_id NOT IN
+            <foreach item="item" index="index" collection="deviceOperation" separator=","  open="(" close=")">
+                #{item.deviceId}
+            </foreach>
+        </if>
     </delete>
 
     <update id="updateDeviceInScene">
-        UPDATE device_in_scene
+        UPDATE Device_In_Scene
         SET
         device_id = CASE device_id
         <foreach item="item" collection="deviceOperation">
