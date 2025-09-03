@@ -59,7 +59,7 @@ public class  PermissionController {
     public ResponseEntity<Map<String, Object>> cancelPermission(@RequestBody UserCustomPermission request,
                                                                @RequestHeader HttpHeaders headers){
         Map<String, Object> response = new HashMap<>();
-        if(!permissionService.checkPermission(request.getId())) {
+        if(permissionService.checkPermission(request.getId())==null) {
             response.put("message", "该用户未拥有此权限");
             return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
         }
