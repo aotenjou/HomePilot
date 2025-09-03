@@ -227,12 +227,11 @@ public class NewEntityController {
 
 ## 🧪 接口测试
 
-
 ###  1.使用Postman或者apifox
 
 #### 认证接口测试
 ```http
-POST http://localhost:8081/auth/login
+POST http://localhost:8080/auth/login
 Content-Type: application/json
 
 {
@@ -243,7 +242,7 @@ Content-Type: application/json
 
 #### 需要认证的接口测试
 ```http
-GET http://localhost:8081/home/get
+GET http://localhost:8080/home/get
 Authorization: Bearer your_jwt_token
 ```
 
@@ -267,10 +266,10 @@ mvn test -Dtest=TestClassName#testMethodName
 #### 问题：端口被占用
 ```bash
 # Windows查看端口占用
-netstat -ano | findstr 8081
+netstat -ano | findstr 8080
 
 # Linux/Mac查看端口占用
-lsof -i :8081
+lsof -i :8080
 
 # 杀死进程
 kill -9 <PID>
@@ -390,7 +389,7 @@ java -jar manager-0.0.1-SNAPSHOT.jar
 ```dockerfile
 FROM openjdk:17-jre-slim
 COPY target/manager-0.0.1-SNAPSHOT.jar app.jar
-EXPOSE 8081
+EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "/app.jar"]
 ```
 
