@@ -50,6 +50,7 @@ public class AuthController {
         Long userId = authService.getUserIdByPhone(request.getPhone());
         response.put("token", authService.getToken(userId.toString()));
         response.put("message", "登录成功");
+        response.put("userId", userId);
         return ResponseEntity.ok(response);
     }
 
