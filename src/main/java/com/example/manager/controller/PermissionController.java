@@ -4,6 +4,7 @@ import com.example.manager.entity.UserCustomPermission;
 import com.example.manager.entity.UserHome;
 import com.example.manager.service.PermissionService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,11 +29,12 @@ public class  PermissionController {
             @ApiResponse(responseCode = "409", description = "该用户已拥有此权限"),
             @ApiResponse(responseCode = "500", description = "添加权限失败")
     })
-    @PostMapping("/add")
+    @PostMapping("/{homeId}/add")
     public ResponseEntity<Map<String, Object>> addPermission(@RequestBody UserCustomPermission request,
+                                                             @Parameter(description = "家庭ID", required = true)@PathVariable("homeId") Long homeId,
                                                              @RequestHeader HttpHeaders headers){
         Map<String, Object> response = new HashMap<>();
-        if(permissionService.checkPermission(request.getId())) {
+        if(permissionService.checkPermission(request.getId())!=null) {
             response.put("message", "该用户已拥有此权限");
             return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
         }

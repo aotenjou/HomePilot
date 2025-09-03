@@ -9,7 +9,7 @@ import org.apache.ibatis.annotations.Param;
 public interface UserCustomPermissionMapper extends BaseMapper<UserCustomPermission> {
     void createUserCustomPermission(UserCustomPermission userCustomPermission);
 
-    boolean checkPermission(@Param("id") Long id);
+    Boolean checkPermission(@Param("id") Long id);
 
     void deleteUserCustomPermission(@Param("id") Long id);
 

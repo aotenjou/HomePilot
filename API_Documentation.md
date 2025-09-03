@@ -872,7 +872,7 @@
 
 ### 1. 添加用户权限
 
-**接口地址**: `POST /permission/add`
+**接口地址**: `POST /permission/{homeId}/add`
 
 **请求头**: 需要JWT Token
 
