@@ -1,29 +1,27 @@
 package com.example.manager;
 
-import com.example.manager.controller.DeviceManageController;
-import com.example.manager.entity.Device;
-import com.example.manager.entity.DeviceType;
-import com.example.manager.entity.UserHome;
-import com.example.manager.mapper.UserHomeMapper;
-import com.example.manager.service.DeviceManageService;
-import com.example.manager.service.DevicePermissionService;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import com.example.manager.controller.DeviceManageController;
+import com.example.manager.entity.Device;
+import com.example.manager.entity.UserHome;
+import com.example.manager.mapper.UserHomeMapper;
+import com.example.manager.service.DeviceManageService;
 
 /**
  * 设备管理权限测试
@@ -338,7 +336,7 @@ public class DeviceManagementPermissionTest {
         when(deviceService.updateLastActiveTime(DEVICE_ID, LocalDateTime.now())).thenReturn(true);
 
         // 执行测试
-        ResponseEntity<Map<String, Object>> response = deviceManageController.updateActive(DEVICE_ID, HOME_ID.toString());
+        ResponseEntity<Map<String, Object>> response = deviceManageController.updateActive(DEVICE_ID, HOME_ID);
 
         // 验证结果
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -360,7 +358,7 @@ public class DeviceManagementPermissionTest {
         when(deviceService.updateLastActiveTime(DEVICE_ID, LocalDateTime.now())).thenReturn(false);
 
         // 执行测试
-        ResponseEntity<Map<String, Object>> response = deviceManageController.updateActive(DEVICE_ID, HOME_ID.toString());
+        ResponseEntity<Map<String, Object>> response = deviceManageController.updateActive(DEVICE_ID, HOME_ID);
 
         // 验证结果 - 访客应该被拒绝更新设备激活状态
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
