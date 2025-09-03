@@ -42,6 +42,10 @@ public class Device {
     @TableField("is_deleted")
     private Boolean isDeleted;
 
+    public void setDeviceName(String name) {
+        this.name = name;
+    }
+
     @Getter
     public enum OnlineStatus {
         OFFLINE(0, "未在线"),

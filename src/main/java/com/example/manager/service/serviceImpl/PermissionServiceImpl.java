@@ -20,7 +20,7 @@ public class PermissionServiceImpl extends ServiceImpl<UserCustomPermissionMappe
     }
 
     @Override
-    public boolean checkPermission(Long id) {
+    public Boolean checkPermission(Long id) {
         return baseMapper.checkPermission(id);
     }
 

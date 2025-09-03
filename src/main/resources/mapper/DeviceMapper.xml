@@ -4,8 +4,8 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.manager.mapper.DeviceMapper">
     <insert id="insertDevice">
-        insert into Device (name, ip_address,home_id, room_id, type_id, online_status, active_status, last_active_time)
-        values (#{name}, #{ipAddress}, #{homeId}, #{roomId}, #{typeId}, #{onlineStatus}, #{activeStatus}, #{lastActiveTime});
+        insert into Device (name, ip_address,home_id, room_id, type_id, online_status, active_status, last_active_time, is_deleted)
+        values (#{name}, #{ipAddress}, #{homeId}, #{roomId}, #{typeId}, #{onlineStatus}, #{activeStatus}, #{lastActiveTime}, #{isDeleted});
     </insert>
     <select id="getLastInsertId" resultType="java.lang.Long">
             SELECT LAST_INSERT_ID()

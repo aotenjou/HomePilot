@@ -4,7 +4,8 @@
 
 本文档描述了智能家居管理系统的所有API接口，用于前后端对接开发。
 
-- **基础URL**: `http://localhost:8081`
+- **基础URL**: `http://localhost:8080`
+- **公网地址**：`http://8.130.88.98:8080`
 - **认证方式**: JWT Token (在请求头中携带)
 - **数据格式**: JSON
 - **字符编码**: UTF-8
@@ -877,7 +878,7 @@ POST /home/1/room/device/active?id=1
 
 ### 1. 添加用户权限
 
-**接口地址**: `POST /permission/add`
+**接口地址**: `POST /permission/{homeId}/add`
 
 **请求头**: 需要JWT Token
 

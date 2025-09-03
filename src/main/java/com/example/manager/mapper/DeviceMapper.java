@@ -39,7 +39,7 @@ public interface DeviceMapper extends BaseMapper<Device> {
 
     List<Long> selectAllId();
 //    name, ip_address,home_id, room_id, type_id, online_status, active_status, last_active_time
-    void insertDevice(@Param("name") String name,@Param("ipAddress")String ipAddress, @Param("homeId") Long homeId ,@Param("roomId")Long roomId, @Param("typeId")Long typeId,@Param("onlineStatus")Integer onlineStatus,@Param("activeStatus")Integer activeStatus,@Param("lastActiveTime")LocalDateTime lastActiveTime);
+    void insertDevice(@Param("name") String name,@Param("ipAddress")String ipAddress, @Param("homeId") Long homeId ,@Param("roomId")Long roomId, @Param("typeId")Long typeId,@Param("onlineStatus")Integer onlineStatus,@Param("activeStatus")Integer activeStatus,@Param("lastActiveTime")LocalDateTime lastActiveTime, @Param("isDeleted")Boolean isDeleted);
 
     Long getLastInsertId();
 }
