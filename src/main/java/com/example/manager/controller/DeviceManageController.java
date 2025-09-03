@@ -36,7 +36,7 @@ public class DeviceManageController {
 
     @Autowired
     private DeviceManageService deviceService;
-    
+
     @Autowired
     private DevicePermissionService devicePermissionService;
 
@@ -151,7 +151,7 @@ public class DeviceManageController {
     })
     @GetMapping("/accessibleDevices")
     public ResponseEntity<Map<String, Object>> getAccessibleDevices(@Parameter(hidden = true)@RequestAttribute("currentUserId") Long userId,
-                                                             @PathVariable("homeId") Long homeId) {
+                                                                    @PathVariable("homeId") Long homeId) {
         Map<String, Object> response = new HashMap<>();
         List<Device> devices = devicePermissionService.getAccessibleDevices(userId, homeId);
         if (devices.isEmpty()) {

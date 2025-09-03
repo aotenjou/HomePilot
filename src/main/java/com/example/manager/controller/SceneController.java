@@ -1,13 +1,11 @@
 package com.example.manager.controller;
 
 import com.example.manager.DTO.AddSceneRequest;
+import com.example.manager.DTO.OperationOfDevice;
+import com.example.manager.service.HomeService;
 import com.example.manager.DTO.SceneDeviceView;
 import com.example.manager.DTO.StartSceneRequest;
-import com.example.manager.entity.*;
-import com.example.manager.mqtt.Service.MqttConnectService;
-import com.example.manager.mqtt.Service.MqttSendmessageService;
 import com.example.manager.service.DeviceInteractService;
-import com.example.manager.service.HomeService;
 import com.example.manager.service.SceneService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -27,6 +25,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/home/{homeId}/scene")
 public class SceneController {
+
     @Autowired
     private SceneService sceneService;
 
@@ -34,42 +33,11 @@ public class SceneController {
     private HomeService homeService;
 
     @Autowired
-    private MqttConnectService mqttConnectService;
-
-    @Autowired
     private DeviceInteractService deviceInteractService;
 
     @Operation(
-            summary = "获取某家庭下可视设备列表（用于添加场景）",
-            description = "传入家庭 ID，获取该家庭下可用于配置场景的设备信息"
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "设备获取成功"),
-            @ApiResponse(responseCode = "404", description = "家庭不存在或设备未发现")
-    })
-    @GetMapping("/view/{sceneId}/device")
-    public ResponseEntity<Map<String, Object>> deviceView(@PathVariable("homeId") Long homeId,
-                                                          @PathVariable("sceneId") Long sceneId,
-                                                          @RequestHeader HttpHeaders headers) {
-        Map<String, Object> response = new HashMap<>();
-        if(!sceneService.checkScene(sceneId)) {
-            response.put("message", "不存在此场景");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
-        List<SceneDeviceView> devices = sceneService.getSceneDeviceView(sceneId);
-        if(devices == null) {
-            response.put("message", "暂无设备");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
-
-        response.put("devices", devices);
-        response.put("message", "查看成功");
-        return ResponseEntity.status(HttpStatus.OK).body(response);
-    }
-
-    @Operation(
             summary = "创建新场景",
-            description = "为指定家庭创建一个自动化场景，可配置多个设备及其状态，传入场景名称、描述、状态、结束时间等信息"
+            description = "为指定家庭创建一个自动化场景，可配置多个设备及其状态"
     )
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "场景创建成功"),
@@ -82,153 +50,214 @@ public class SceneController {
                                                         @RequestAttribute("currentUserId") Long userId,
                                                         @RequestHeader HttpHeaders headers) {
         Map<String, Object> response = new HashMap<>();
-        if(!homeService.checkHome(homeId)) {
+
+        if (request.getName() == null || request.getName().isBlank()) {
+            response.put("message", "场景名称不能为空");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+        if (request.getDescription() == null) {
+            request.setDescription("");
+        }
+
+        if (!homeService.checkHome(homeId)) {
             response.put("message", "不存在此家庭");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
-        if(request.getDeviceOperation().isEmpty()) {
-            sceneService.createSceneWithoutDevice(userId, homeId, request.getName(), request.getDescription(), request.getStatus(), request.getStartTime(), request.getEndTime());
-        } else {
-            sceneService.createScene(userId, homeId, request.getName(), request.getDescription(), request.getStatus(), request.getStartTime(), request.getEndTime(), request.getDeviceOperation());
-        }
 
-        response.put("message", "创建场景成功");
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
-
-    @Operation(summary = "删除场景", description = "通过sceneId删除场景")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "删除成功"),
-            @ApiResponse(responseCode = "404", description = "场景不存在"),
-            @ApiResponse(responseCode = "500", description = "删除场景失败")
-    })
-    @DeleteMapping("/delete/{sceneId}")
-    public ResponseEntity<Map<String, Object>> deleteScene(@PathVariable Long sceneId,
-                                                           @PathVariable Long homeId,
-                                                           @RequestHeader HttpHeaders headers) {
-        Map<String, Object> response = new HashMap<>();
-        if(!sceneService.checkScene(sceneId)) {
-            response.put("message", "场景不存在");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
-        sceneService.deleteScene(sceneId);
-        if(sceneService.checkScene(sceneId)) {
-            response.put("message", "删除场景失败");
+        try {
+            if (request.getDeviceOperation() == null || request.getDeviceOperation().isEmpty()) {
+                sceneService.createSceneWithoutDevice(userId, homeId, request.getName(), request.getDescription(), request.getStatus(), request.getStartTime(), request.getEndTime());
+            } else {
+                List<OperationOfDevice> filtered = request.getDeviceOperation().stream()
+                        .filter(op -> op != null && op.getDeviceId() != null && op.getOperationId() != null)
+                        .toList();
+                if (filtered.isEmpty()) {
+                    sceneService.createSceneWithoutDevice(userId, homeId, request.getName(), request.getDescription(), request.getStatus(), request.getStartTime(), request.getEndTime());
+                } else {
+                    sceneService.createScene(userId, homeId, request.getName(), request.getDescription(), request.getStatus(), request.getStartTime(), request.getEndTime(), filtered);
+                }
+            }
+            response.put("message", "创建场景成功");
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (Exception e) {
+            response.put("message", "创建场景失败: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
-        response.put("message", "删除成功");
-        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @Operation(summary = "获取场景列表", description = "通过路径参数homeId获取指定家庭下的场景列表")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "获取场景列表成功"),
-            @ApiResponse(responseCode = "404", description = "家庭不存在或者没找到场景"),
-            @ApiResponse(responseCode = "500", description = "获取场景列表失败")
+    @Operation(
+            summary = "获取场景列表",
+            description = "根据家庭ID获取该家庭下的场景列表"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "获取成功")
     })
     @GetMapping("/view")
     public ResponseEntity<Map<String, Object>> viewScene(@PathVariable("homeId") Long homeId,
                                                          @RequestHeader HttpHeaders headers) {
         Map<String, Object> response = new HashMap<>();
-        if(!homeService.checkHome(homeId)) {
+
+        if (!homeService.checkHome(homeId)) {
             response.put("message", "不存在此家庭");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
-        List<Scene> scenes = sceneService.getHomeScene(homeId);
-        if(scenes.isEmpty()) {
-            response.put("message", "没有此家庭下的场景");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            response.put("scenes", List.of());
+            return ResponseEntity.status(HttpStatus.OK).body(response);
         }
 
-        response.put("scenes", scenes);
+        List<com.example.manager.entity.Scene> scenes = sceneService.getHomeScene(homeId);
+        response.put("scenes", scenes == null ? List.of() : scenes);
         response.put("message", "获取成功");
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @Operation(summary = "启动场景", description = "通过场景ID启动场景")
-    @ApiResponses(value = {
+    @Operation(
+            summary = "获取场景设备视图",
+            description = "根据场景ID获取该场景下的设备视图列表"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "获取成功")
+    })
+    @GetMapping("/view/{sceneId}/device")
+    public ResponseEntity<Map<String, Object>> deviceView(@PathVariable("homeId") Long homeId,
+                                                          @PathVariable("sceneId") Long sceneId,
+                                                          @RequestHeader HttpHeaders headers) {
+        Map<String, Object> response = new HashMap<>();
+
+        if (!sceneService.checkScene(sceneId)) {
+            response.put("message", "不存在此场景");
+            response.put("devices", List.of());
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        }
+
+        List<SceneDeviceView> devices = sceneService.getSceneDeviceView(sceneId);
+        response.put("devices", devices == null ? List.of() : devices);
+        response.put("message", "获取成功");
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @Operation(
+            summary = "启动场景",
+            description = "根据场景ID启动场景中的设备操作"
+    )
+    @ApiResponses({
             @ApiResponse(responseCode = "200", description = "启动成功"),
-            @ApiResponse(responseCode = "404", description = "场景不存在"),
-            @ApiResponse(responseCode = "500", description = "启动失败")
+            @ApiResponse(responseCode = "404", description = "场景不存在")
     })
     @PostMapping("/start")
     public ResponseEntity<Map<String, Object>> startScene(@RequestBody StartSceneRequest request,
-                                                          @RequestAttribute("currentUserId") Long userId) {
+                                                          @RequestAttribute("currentUserId") Long userId,
+                                                          @PathVariable("homeId") Long homeId) {
         Map<String, Object> response = new HashMap<>();
         if (!sceneService.checkScene(request.getSceneId())) {
             response.put("message", "场景不存在");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
-        List<DeviceInScene> deviceOperation = sceneService.getDeviceOperation(request.getSceneId());
-
-        mqttConnectService.connect();
-        Map<String, Object> operationExecutionStatus = new HashMap<>();
-        for(DeviceInScene deviceInScene : deviceOperation) {
-            if(!deviceInteractService.checkDeviceOnlineStatus(deviceInScene.getDeviceId())) {
-                operationExecutionStatus.put(deviceInScene.getDeviceId().toString(), "未在线");
+        List<com.example.manager.entity.DeviceInScene> deviceOperation = sceneService.getDeviceOperation(request.getSceneId());
+        for (com.example.manager.entity.DeviceInScene item : deviceOperation) {
+            if (!deviceInteractService.checkDeviceOnlineStatus(item.getDeviceId())) {
                 continue;
             }
-            deviceInteractService.sendCommand(deviceInScene.getDeviceId().toString(), deviceInScene.getDeviceOperationId().toString());
-            operationExecutionStatus.put(deviceInScene.getDeviceId().toString(), "已执行");
+            deviceInteractService.sendCommand(item.getDeviceId().toString(), item.getDeviceOperationId().toString());
         }
-        mqttConnectService.disConnect();
-        response.put("message", "场景已开启");
-        response.put("设备开启情况", operationExecutionStatus);
+        response.put("message", "启动成功");
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "停止场景", description = "通过场景ID停止场景")
-    @ApiResponses(value = {
+    @Operation(
+            summary = "停止场景",
+            description = "根据场景ID停止场景中的设备操作"
+    )
+    @ApiResponses({
             @ApiResponse(responseCode = "200", description = "停止成功"),
-            @ApiResponse(responseCode = "404", description = "场景不存在"),
-            @ApiResponse(responseCode = "500", description = "停止失败")
+            @ApiResponse(responseCode = "404", description = "场景不存在")
     })
     @PostMapping("/stop")
     public ResponseEntity<Map<String, Object>> stopScene(@RequestBody StartSceneRequest request,
-                                                         @RequestAttribute("currentUserId") Long userId) {
+                                                         @RequestAttribute("currentUserId") Long userId,
+                                                         @PathVariable("homeId") Long homeId) {
         Map<String, Object> response = new HashMap<>();
-        if(!sceneService.checkScene(request.getSceneId())) {
+        if (!sceneService.checkScene(request.getSceneId())) {
             response.put("message", "场景不存在");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
-        List<DeviceInScene> deviceOperation = sceneService.getDeviceOperation(request.getSceneId());
-
-        mqttConnectService.connect();
-        for(DeviceInScene deviceInScene : deviceOperation) {
-            if(!deviceInteractService.checkDeviceOnlineStatus(deviceInScene.getDeviceId())) {
+        List<com.example.manager.entity.DeviceInScene> deviceOperation = sceneService.getDeviceOperation(request.getSceneId());
+        for (com.example.manager.entity.DeviceInScene item : deviceOperation) {
+            if (!deviceInteractService.checkDeviceOnlineStatus(item.getDeviceId())) {
                 continue;
             }
-            deviceInteractService.sendCommand(deviceInScene.getDeviceId().toString(), deviceInScene.getDeviceOperationId().toString());
+            // 停止逻辑按现有命令通道发送对应 operationId
+            deviceInteractService.sendCommand(item.getDeviceId().toString(), item.getDeviceOperationId().toString());
         }
-        mqttConnectService.disConnect();
-        response.put("message", "场景已关闭");
+        response.put("message", "停止成功");
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "修改场景参数和设备表", description = "通过场景ID以及传入的参数表修改场景的参数和设备表")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "修改成功"),
-            @ApiResponse(responseCode = "404", description = "场景不存在"),
-            @ApiResponse(responseCode = "500", description = "修改失败")
+    @Operation(
+            summary = "更新场景",
+            description = "根据场景ID与请求体更新场景信息与设备操作"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "更新成功"),
+            @ApiResponse(responseCode = "404", description = "场景不存在")
     })
     @PostMapping("/update/{sceneId}")
     public ResponseEntity<Map<String, Object>> updateScene(@RequestBody AddSceneRequest request,
-                                                          @PathVariable("sceneId") Long sceneId,
-                                                          @PathVariable("homeId") Long homeId,
-                                                          @RequestAttribute("currentUserId") Long userId) {
+                                                           @PathVariable("sceneId") Long sceneId,
+                                                           @PathVariable("homeId") Long homeId,
+                                                           @RequestAttribute("currentUserId") Long userId) {
         Map<String, Object> response = new HashMap<>();
-        if(!sceneService.checkScene(sceneId)) {
+
+        if (!sceneService.checkScene(sceneId)) {
             response.put("message", "场景不存在");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
 
-        if(request.getDeviceOperation().isEmpty()) {
-            sceneService.updateSceneWithoutDevice(sceneId, userId, homeId, request.getName(), request.getDescription(), request.getStatus(), request.getStartTime(), request.getEndTime());
-        } else {
-            sceneService.updateScene(sceneId, userId, homeId, request.getName(), request.getDescription(), request.getStatus(), request.getStartTime(), request.getEndTime(), request.getDeviceOperation());
+        if (request.getName() == null || request.getName().isBlank()) {
+            response.put("message", "场景名称不能为空");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+        if (request.getDescription() == null) {
+            request.setDescription("");
         }
 
-        response.put("message", "更新场景成功");
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        try {
+            if (request.getDeviceOperation() == null || request.getDeviceOperation().isEmpty()) {
+                sceneService.updateSceneWithoutDevice(sceneId, userId, homeId, request.getName(), request.getDescription(), request.getStatus(), request.getStartTime(), request.getEndTime());
+            } else {
+                List<OperationOfDevice> filtered = request.getDeviceOperation().stream()
+                        .filter(op -> op != null && op.getDeviceId() != null && op.getOperationId() != null)
+                        .toList();
+                sceneService.updateScene(sceneId, userId, homeId, request.getName(), request.getDescription(), request.getStatus(), request.getStartTime(), request.getEndTime(), filtered);
+            }
+            response.put("message", "更新成功");
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        } catch (Exception e) {
+            response.put("message", "更新失败: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @Operation(
+            summary = "删除场景",
+            description = "根据场景ID删除场景"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "删除成功"),
+            @ApiResponse(responseCode = "404", description = "场景不存在")
+    })
+    @DeleteMapping("/delete/{sceneId}")
+    public ResponseEntity<Map<String, Object>> deleteScene(@PathVariable("homeId") Long homeId,
+                                                           @PathVariable("sceneId") Long sceneId,
+                                                           @RequestAttribute("currentUserId") Long userId,
+                                                           @RequestHeader HttpHeaders headers) {
+        Map<String, Object> response = new HashMap<>();
+
+        if (!sceneService.checkScene(sceneId)) {
+            response.put("message", "场景不存在");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+
+        sceneService.deleteScene(sceneId);
+        response.put("message", "删除成功");
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }
