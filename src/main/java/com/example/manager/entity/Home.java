@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.time.LocalDateTime;
+
 @Data
 @EqualsAndHashCode(callSuper = false)
 @TableName("Home")
@@ -17,6 +19,9 @@ public class Home {
 
     @TableField("address")
     private String address;
+
+    @TableField("createTime")
+    private LocalDateTime createTime;
 
     @TableLogic
     @TableField("is_deleted")

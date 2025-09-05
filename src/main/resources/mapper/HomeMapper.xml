@@ -5,7 +5,7 @@
 <mapper namespace="com.example.manager.mapper.HomeMapper">
 
     <insert id="createHome">
-        INSERT INTO Home (name, address) VALUES (#{name}, #{address})
+        INSERT INTO Home (name, address, createTime) VALUES (#{name}, #{address}, NOW())
     </insert>
 
     <select id="getLastInsertId" resultType="java.lang.Long">

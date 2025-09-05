@@ -29,6 +29,7 @@ CREATE TABLE Home (
                        id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '家庭唯一标识',
                        name VARCHAR(255) NOT NULL COMMENT '家庭名称',
                        address VARCHAR(255) COMMENT '家庭地址',
+                       createTime DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '家庭创建时间',
                        is_deleted BOOLEAN NOT NULL DEFAULT FALSE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='家庭表';
 
