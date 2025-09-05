@@ -6,7 +6,19 @@
         insert into Mqtt_data (id,device_id, datatime, datatopic, datavalue) values(NULL,#{device_id}, #{datatime}, #{datatopic}, #{datavalue})
     </insert>
 
+    <insert id="insertSensorData">
+        insert into Mqtt_data (
+            id, device_id, datatime, datatopic,
+            temperature, humidity, light_a, light_b, light_c,
+            fan_state, fire_state, gas_state
+        ) values (
+            NULL, #{device_id}, #{datatime}, #{datatopic},
+            #{temperature}, #{humidity}, #{light_a}, #{light_b}, #{light_c},
+            #{fan_state}, #{fire_state}, #{gas_state}
+        )
+    </insert>
+
     <select id="getDeviceData" resultType="com.example.manager.entity.Mqttdata">
-        select * from Mqtt_data where device_id = #{device_id}
+        select * from Mqtt_data where device_id = #{device_id} order by datatime desc
     </select>
 </mapper>

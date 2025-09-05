@@ -213,8 +213,17 @@ CREATE TABLE Mqtt_data (
                                     device_id BIGINT NOT NULL COMMENT '设备ID',
                                     datatime DATETIME NOT NULL COMMENT '数据发送时间',
                                     datatopic VARCHAR(255) NOT NULL COMMENT '数据发送主题',
-                                    datavalue INT NOT NULL COMMENT '数据数值'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='设备数据表';
+                                    datavalue INT COMMENT '数据数值（向后兼容）',
+                                    sensor_data JSON COMMENT '完整的传感器数据（JSON格式）',
+                                    temperature DECIMAL(5,2) COMMENT '温度',
+                                    humidity DECIMAL(5,2) COMMENT '湿度',
+                                    light_a INT COMMENT '光照传感器A',
+                                    light_b INT COMMENT '光照传感器B',
+                                    light_c INT COMMENT '光照传感器C',
+                                    fan_state INT COMMENT '风扇状态',
+                                    fire_state INT COMMENT '火焰状态',
+                                    gas_state INT COMMENT '气体状态'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='设备传感器数据表';
 
 
 INSERT INTO Device_Operation (device_type_id, operation_id, description) VALUES
