@@ -338,7 +338,7 @@ public class DeviceManagementPermissionTest {
         when(deviceService.updateLastActiveTime(DEVICE_ID, LocalDateTime.now())).thenReturn(true);
 
         // 执行测试
-        ResponseEntity<Map<String, Object>> response = deviceManageController.updateActive(DEVICE_ID, HOME_ID.toString());
+        ResponseEntity<Map<String, Object>> response = deviceManageController.updateActive(DEVICE_ID, HOME_ID);
 
         // 验证结果
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -360,7 +360,7 @@ public class DeviceManagementPermissionTest {
         when(deviceService.updateLastActiveTime(DEVICE_ID, LocalDateTime.now())).thenReturn(false);
 
         // 执行测试
-        ResponseEntity<Map<String, Object>> response = deviceManageController.updateActive(DEVICE_ID, HOME_ID.toString());
+        ResponseEntity<Map<String, Object>> response = deviceManageController.updateActive(DEVICE_ID, HOME_ID);
 
         // 验证结果 - 访客应该被拒绝更新设备激活状态
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());

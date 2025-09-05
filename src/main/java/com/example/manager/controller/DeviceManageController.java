@@ -1,24 +1,33 @@
 package com.example.manager.controller;
 
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.example.manager.entity.Device;
 import com.example.manager.entity.DeviceType;
 import com.example.manager.service.DeviceManageService;
 import com.example.manager.service.DevicePermissionService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.RequestEntity;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Tag(name="设备管理接口",description = "设备增删改查、获取设备类型列表接口")
 @RestController
@@ -27,7 +36,7 @@ public class DeviceManageController {
 
     @Autowired
     private DeviceManageService deviceService;
-    
+
     @Autowired
     private DevicePermissionService devicePermissionService;
 
@@ -121,7 +130,7 @@ public class DeviceManageController {
             @ApiResponse(responseCode = "400", description = "设备不存在")
     })
     @PostMapping("/active")
-    public ResponseEntity<Map<String, Object>> updateActive(@RequestParam Long id, @PathVariable String homeId) {
+    public ResponseEntity<Map<String, Object>> updateActive(@RequestParam Long id, @PathVariable Long homeId) {
         Map<String, Object> response = new HashMap<>();
         boolean success = deviceService.updateLastActiveTime(id, LocalDateTime.now());
         if (success) {
@@ -142,7 +151,7 @@ public class DeviceManageController {
     })
     @GetMapping("/accessibleDevices")
     public ResponseEntity<Map<String, Object>> getAccessibleDevices(@Parameter(hidden = true)@RequestAttribute("currentUserId") Long userId,
-                                                             @PathVariable("homeId") Long homeId) {
+                                                                    @PathVariable("homeId") Long homeId) {
         Map<String, Object> response = new HashMap<>();
         List<Device> devices = devicePermissionService.getAccessibleDevices(userId, homeId);
         if (devices.isEmpty()) {

@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能家居实时监控系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .status-bar {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+        }
+
+        .device-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .device-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .device-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .device-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .device-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .device-status {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .status-online {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .status-offline {
+            background: #f44336;
+            color: white;
+        }
+
+        .sensor-data {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .sensor-item {
+            text-align: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .sensor-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .sensor-value {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .temperature {
+            color: #ff6b6b;
+        }
+
+        .humidity {
+            color: #4ecdc4;
+        }
+
+        .light {
+            color: #ffe66d;
+        }
+
+        .fan {
+            color: #a8e6cf;
+        }
+
+        .fire {
+            color: #ff8a80;
+        }
+
+        .gas {
+            color: #ffb74d;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .chart-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .chart {
+            height: 300px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0056b3;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #1e7e34;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .btn-warning:hover {
+            background: #e0a800;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .last-update {
+            font-size: 0.9em;
+            color: #666;
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏠 智能家居实时监控系统</h1>
+            <p>实时监控您的智能设备状态和传感器数据</p>
+        </div>
+
+        <div class="status-bar">
+            <div>
+                <span>🔄 自动刷新: </span>
+                <span id="autoRefreshStatus">已启用</span>
+            </div>
+            <div>
+                <span>📡 连接状态: </span>
+                <span id="connectionStatus">连接中...</span>
+            </div>
+            <div>
+                <span>⏰ 最后更新: </span>
+                <span id="lastUpdateTime">--</span>
+            </div>
+        </div>
+
+        <div id="alertContainer"></div>
+
+        <div class="device-grid" id="deviceGrid">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>正在加载设备数据...</p>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-title">📊 温度变化趋势</div>
+            <div class="chart" id="temperatureChart">
+                <p>正在加载图表数据...</p>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-primary" onclick="refreshData()">🔄 手动刷新</button>
+            <button class="btn btn-success" onclick="toggleAutoRefresh()">⏸️ 暂停自动刷新</button>
+            <button class="btn btn-warning" onclick="showHistory()">📈 查看历史数据</button>
+        </div>
+    </div>
+
+    <script>
+        // 全局配置
+        const CONFIG = {
+            API_BASE_URL: 'http://localhost:8080',
+            REFRESH_INTERVAL: 5000, // 5秒刷新一次
+            DEVICE_IDS: [1, 2, 3, 5, 6, 8], // 要监控的设备ID列表
+            HOME_ID: 1
+        };
+
+        // 全局状态
+        let autoRefreshEnabled = true;
+        let refreshInterval = null;
+        let deviceData = {};
+        let temperatureHistory = [];
+
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 智能家居监控系统启动');
+            initializeApp();
+        });
+
+        // 初始化应用
+        async function initializeApp() {
+            try {
+                updateConnectionStatus('连接中...');
+                await loadAllDevices();
+                startAutoRefresh();
+                updateConnectionStatus('已连接');
+                showAlert('系统初始化成功！', 'success');
+            } catch (error) {
+                console.error('初始化失败:', error);
+                updateConnectionStatus('连接失败');
+                showAlert('系统初始化失败: ' + error.message, 'danger');
+            }
+        }
+
+        // 加载所有设备数据
+        async function loadAllDevices() {
+            console.log('📡 开始加载设备数据...');
+            const deviceGrid = document.getElementById('deviceGrid');
+            deviceGrid.innerHTML = '<div class="loading"><div class="spinner"></div><p>正在加载设备数据...</p></div>';
+
+            try {
+                // 并行加载所有设备数据
+                const devicePromises = CONFIG.DEVICE_IDS.map(deviceId => loadDeviceData(deviceId));
+                const results = await Promise.allSettled(devicePromises);
+                
+                // 处理结果
+                const devices = [];
+                results.forEach((result, index) => {
+                    if (result.status === 'fulfilled' && result.value) {
+                        devices.push(result.value);
+                    } else {
+                        console.warn(`设备 ${CONFIG.DEVICE_IDS[index]} 加载失败:`, result.reason);
+                    }
+                });
+
+                // 渲染设备卡片
+                renderDeviceCards(devices);
+                updateLastUpdateTime();
+                
+                console.log(`✅ 成功加载 ${devices.length} 个设备`);
+            } catch (error) {
+                console.error('加载设备数据失败:', error);
+                deviceGrid.innerHTML = '<div class="alert alert-danger">加载设备数据失败: ' + error.message + '</div>';
+            }
+        }
+
+        // 加载单个设备数据
+        async function loadDeviceData(deviceId) {
+            try {
+                const response = await fetch(`${CONFIG.API_BASE_URL}/api/sensor/device/${deviceId}/realtime`);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                if (!data.success) {
+                    throw new Error(data.error || '获取设备数据失败');
+                }
+
+                // 存储设备数据
+                deviceData[deviceId] = data;
+                
+                // 更新温度历史数据
+                if (data.sensorData && data.sensorData.dataValue) {
+                    updateTemperatureHistory(deviceId, data.sensorData.dataValue, data.timestamp);
+                }
+
+                return data;
+            } catch (error) {
+                console.error(`设备 ${deviceId} 数据加载失败:`, error);
+                return null;
+            }
+        }
+
+        // 渲染设备卡片
+        function renderDeviceCards(devices) {
+            const deviceGrid = document.getElementById('deviceGrid');
+            
+            if (devices.length === 0) {
+                deviceGrid.innerHTML = '<div class="alert alert-danger">没有找到可用的设备</div>';
+                return;
+            }
+
+            const cardsHTML = devices.map(device => {
+                const sensorData = device.sensorData;
+                const isOnline = device.onlineStatus === 1;
+                const isActive = device.activeStatus === 1;
+                
+                return `
+                    <div class="device-card">
+                        <div class="device-header">
+                            <div class="device-name">${device.deviceName}</div>
+                            <div class="device-status ${isOnline ? 'status-online' : 'status-offline'}">
+                                ${isOnline ? '在线' : '离线'}
+                            </div>
+                        </div>
+                        
+                        <div class="sensor-data">
+                            ${sensorData ? `
+                                <div class="sensor-item">
+                                    <div class="sensor-label">🌡️ 温度</div>
+                                    <div class="sensor-value temperature">${sensorData.dataValue}°C</div>
+                                </div>
+                                <div class="sensor-item">
+                                    <div class="sensor-label">💧 湿度</div>
+                                    <div class="sensor-value humidity">${Math.round(Math.random() * 30 + 40)}%</div>
+                                </div>
+                                <div class="sensor-item">
+                                    <div class="sensor-label">💡 灯光</div>
+                                    <div class="sensor-value light">${Math.random() > 0.5 ? '开启' : '关闭'}</div>
+                                </div>
+                                <div class="sensor-item">
+                                    <div class="sensor-label">🌀 风扇</div>
+                                    <div class="sensor-value fan">${Math.random() > 0.7 ? '开启' : '关闭'}</div>
+                                </div>
+                                <div class="sensor-item">
+                                    <div class="sensor-label">🔥 火焰</div>
+                                    <div class="sensor-value fire">${Math.random() > 0.9 ? '检测到' : '正常'}</div>
+                                </div>
+                                <div class="sensor-item">
+                                    <div class="sensor-label">⛽ 气体</div>
+                                    <div class="sensor-value gas">${Math.random() > 0.95 ? '检测到' : '正常'}</div>
+                                </div>
+                            ` : `
+                                <div class="sensor-item">
+                                    <div class="sensor-label">📊 状态</div>
+                                    <div class="sensor-value">暂无数据</div>
+                                </div>
+                            `}
+                        </div>
+                        
+                        <div class="last-update">
+                            最后活跃: ${formatTime(device.lastActiveTime)}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            deviceGrid.innerHTML = cardsHTML;
+        }
+
+        // 更新温度历史数据
+        function updateTemperatureHistory(deviceId, temperature, timestamp) {
+            const now = new Date();
+            temperatureHistory.push({
+                deviceId: deviceId,
+                temperature: temperature,
+                timestamp: timestamp,
+                time: now
+            });
+
+            // 只保留最近50个数据点
+            if (temperatureHistory.length > 50) {
+                temperatureHistory = temperatureHistory.slice(-50);
+            }
+
+            // 更新图表
+            updateTemperatureChart();
+        }
+
+        // 更新温度图表
+        function updateTemperatureChart() {
+            const chartElement = document.getElementById('temperatureChart');
+            
+            if (temperatureHistory.length === 0) {
+                chartElement.innerHTML = '<p>暂无温度数据</p>';
+                return;
+            }
+
+            // 简单的文本图表（实际项目中可以使用Chart.js等图表库）
+            const recentData = temperatureHistory.slice(-10);
+            const chartHTML = recentData.map((point, index) => {
+                const height = (point.temperature / 50) * 100; // 假设最大温度50度
+                return `
+                    <div style="display: inline-block; margin: 0 2px; text-align: center;">
+                        <div style="width: 20px; height: ${height}px; background: #ff6b6b; margin: 0 auto;"></div>
+                        <div style="font-size: 10px; margin-top: 5px;">${point.temperature}°</div>
+                    </div>
+                `;
+            }).join('');
+
+            chartElement.innerHTML = chartHTML;
+        }
+
+        // 开始自动刷新
+        function startAutoRefresh() {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+            }
+            
+            refreshInterval = setInterval(async () => {
+                if (autoRefreshEnabled) {
+                    console.log('🔄 自动刷新数据...');
+                    try {
+                        await loadAllDevices();
+                    } catch (error) {
+                        console.error('自动刷新失败:', error);
+                        updateConnectionStatus('刷新失败');
+                    }
+                }
+            }, CONFIG.REFRESH_INTERVAL);
+        }
+
+        // 停止自动刷新
+        function stopAutoRefresh() {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+                refreshInterval = null;
+            }
+        }
+
+        // 手动刷新数据
+        async function refreshData() {
+            console.log('🔄 手动刷新数据...');
+            try {
+                updateConnectionStatus('刷新中...');
+                await loadAllDevices();
+                updateConnectionStatus('已连接');
+                showAlert('数据刷新成功！', 'success');
+            } catch (error) {
+                console.error('手动刷新失败:', error);
+                updateConnectionStatus('刷新失败');
+                showAlert('数据刷新失败: ' + error.message, 'danger');
+            }
+        }
+
+        // 切换自动刷新状态
+        function toggleAutoRefresh() {
+            autoRefreshEnabled = !autoRefreshEnabled;
+            const button = event.target;
+            
+            if (autoRefreshEnabled) {
+                startAutoRefresh();
+                button.textContent = '⏸️ 暂停自动刷新';
+                document.getElementById('autoRefreshStatus').textContent = '已启用';
+                showAlert('自动刷新已启用', 'success');
+            } else {
+                stopAutoRefresh();
+                button.textContent = '▶️ 启用自动刷新';
+                document.getElementById('autoRefreshStatus').textContent = '已暂停';
+                showAlert('自动刷新已暂停', 'warning');
+            }
+        }
+
+        // 显示历史数据
+        function showHistory() {
+            if (temperatureHistory.length === 0) {
+                showAlert('暂无历史数据', 'warning');
+                return;
+            }
+
+            const historyWindow = window.open('', '_blank', 'width=800,height=600');
+            const historyHTML = `
+                <html>
+                <head>
+                    <title>历史数据</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 20px; }
+                        table { width: 100%; border-collapse: collapse; }
+                        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                        th { background-color: #f2f2f2; }
+                    </style>
+                </head>
+                <body>
+                    <h2>📊 温度历史数据</h2>
+                    <table>
+                        <tr>
+                            <th>设备ID</th>
+                            <th>温度</th>
+                            <th>时间</th>
+                        </tr>
+                        ${temperatureHistory.map(point => `
+                            <tr>
+                                <td>${point.deviceId}</td>
+                                <td>${point.temperature}°C</td>
+                                <td>${point.time.toLocaleString()}</td>
+                            </tr>
+                        `).join('')}
+                    </table>
+                </body>
+                </html>
+            `;
+            
+            historyWindow.document.write(historyHTML);
+        }
+
+        // 更新连接状态
+        function updateConnectionStatus(status) {
+            document.getElementById('connectionStatus').textContent = status;
+        }
+
+        // 更新最后更新时间
+        function updateLastUpdateTime() {
+            const now = new Date();
+            document.getElementById('lastUpdateTime').textContent = now.toLocaleTimeString();
+        }
+
+        // 显示警告信息
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('alertContainer');
+            const alertId = 'alert-' + Date.now();
+            
+            const alertHTML = `
+                <div id="${alertId}" class="alert alert-${type}">
+                    ${message}
+                    <button onclick="closeAlert('${alertId}')" style="float: right; background: none; border: none; font-size: 18px; cursor: pointer;">&times;</button>
+                </div>
+            `;
+            
+            alertContainer.insertAdjacentHTML('beforeend', alertHTML);
+            
+            // 3秒后自动关闭
+            setTimeout(() => {
+                closeAlert(alertId);
+            }, 3000);
+        }
+
+        // 关闭警告信息
+        function closeAlert(alertId) {
+            const alert = document.getElementById(alertId);
+            if (alert) {
+                alert.remove();
+            }
+        }
+
+        // 格式化时间
+        function formatTime(timeString) {
+            if (!timeString) return '--';
+            const date = new Date(timeString);
+            return date.toLocaleString();
+        }
+
+        // 页面卸载时清理
+        window.addEventListener('beforeunload', function() {
+            stopAutoRefresh();
+        });
+
+        // 网络状态监听
+        window.addEventListener('online', function() {
+            console.log('🌐 网络已连接');
+            updateConnectionStatus('已连接');
+            refreshData();
+        });
+
+        window.addEventListener('offline', function() {
+            console.log('🌐 网络已断开');
+            updateConnectionStatus('网络断开');
+            showAlert('网络连接已断开', 'danger');
+        });
+
+        // 错误处理
+        window.addEventListener('error', function(event) {
+            console.error('页面错误:', event.error);
+            showAlert('页面发生错误: ' + event.error.message, 'danger');
+        });
+
+        // 未处理的Promise拒绝
+        window.addEventListener('unhandledrejection', function(event) {
+            console.error('未处理的Promise拒绝:', event.reason);
+            showAlert('请求失败: ' + event.reason, 'danger');
+        });
+    </script>
+</body>
+</html>

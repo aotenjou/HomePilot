@@ -46,6 +46,21 @@ public class HomeController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+    @GetMapping("/test-migration")
+    public ResponseEntity<Map<String, Object>> testMigration() {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            // 直接查询数据库来测试 createTime 字段
+            List<Home> homes = homeService.getHomeByUserId(1L); // 使用用户ID 1进行测试
+            response.put("homes", homes);
+            response.put("message", "测试成功");
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        } catch (Exception e) {
+            response.put("message", "测试失败: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
     @Operation(summary = "创建家庭", description = "用户创建新的家庭")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "创建成功"),

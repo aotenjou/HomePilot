@@ -6,11 +6,11 @@
         DELETE FROM Scene WHERE id = #{id}
     </delete>
 
-    <insert id="createScene">
+    <insert id="insertScene">
         INSERT INTO Scene (home_id, user_id, name, description, status, start_time, end_time) VALUES (#{homeId}, #{userId}, #{name}, #{description}, #{status}, #{startTime}, #{endTime})
     </insert>
 
-    <select id="selectById" resultType="com.example.manager.entity.Scene">
+    <select id="selectActiveById" resultType="com.example.manager.entity.Scene">
         SELECT * FROM Scene WHERE id = #{id} AND is_deleted = 0
     </select>
 

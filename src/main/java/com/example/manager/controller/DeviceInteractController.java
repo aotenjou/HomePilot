@@ -1,6 +1,5 @@
 package com.example.manager.controller;
 
-import com.example.manager.DTO.DeviceOperationRequest;
 import com.example.manager.DTO.MoveDeviceRequest;
 import com.example.manager.entity.Mqttdata;
 import com.example.manager.mqtt.Service.MqttConnectService;
@@ -26,6 +25,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/home/{homeId}/device")
 public class DeviceInteractController {
+    // 延后使用或保留以便未来扩展
     @Autowired
     private MqttSendmessageService mqttSendmessageService;
 
@@ -34,7 +34,7 @@ public class DeviceInteractController {
 
     @Autowired
     private MqttConnectService mqttConnectService;
-    
+
     @Autowired
     private DevicePermissionService devicePermissionService;
 
@@ -47,27 +47,39 @@ public class DeviceInteractController {
             @ApiResponse(responseCode = "404",description="设备未在线")
     })
     @PostMapping("/{deviceId}/operation/{operationId}")
-    public ResponseEntity<Map<String, Object>> sendCommand(@Parameter(description = "当前用户ID（从请求属性获取）") @RequestAttribute("currentUserId") Long userId,
+    public ResponseEntity<Map<String, Object>> sendCommand(@Parameter(description = "当前用户ID（从请求属性获取）") @RequestAttribute(value = "currentUserId", required = false) Long userId,
                                                            @PathVariable("deviceId") Long deviceId,
                                                            @PathVariable("operationId") Long operationId,
                                                            @PathVariable("homeId") Long homeId,
                                                            @RequestHeader HttpHeaders headers) {
         Map<String, Object> response = new HashMap<>();
 
-        // 检查用户权限
-        if (!devicePermissionService.checkDevicePermission(userId, homeId, deviceId, operationId)) {
-            response.put("message", "没有权限进行此操作");
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
-        }
+        try {
+            if (userId == null) {
+                response.put("message", "未认证用户或令牌无效");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
 
-        if(!deviceInteractService.checkDeviceOnlineStatus(deviceId)) {
-            response.put("message", "设备未在线");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
+            if (!devicePermissionService.checkDevicePermission(userId, homeId, deviceId, operationId)) {
+                response.put("message", "没有权限进行此操作");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+            }
 
-        deviceInteractService.sendCommand(deviceId.toString(), operationId.toString());
-        response.put("message", "命令已发送");
-        return ResponseEntity.ok(response);
+            if (!deviceInteractService.checkDeviceOnlineStatus(deviceId)) {
+                response.put("message", "设备未在线");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+
+            deviceInteractService.sendCommand(deviceId.toString(), operationId.toString());
+            response.put("message", "命令已发送");
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            response.put("message", "参数错误：" + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        } catch (Exception e) {
+            response.put("message", "服务器错误：" + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
     }
 
     @Operation(
@@ -126,11 +138,9 @@ public class DeviceInteractController {
     public ResponseEntity<Map<String, Object>> getData(@PathVariable("deviceId") Long deviceId) {
         Map<String, Object> response = new HashMap<>();
         List<Mqttdata> data = deviceInteractService.getDeviceData(deviceId);
-        if(data.isEmpty()) {
-            response.put("message", "没有任何信息");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
         response.put("data", data);
+        response.put("count", data.size());
+        response.put("message", data.isEmpty() ? "暂无数据" : "获取成功");
         return ResponseEntity.ok(response);
     }
 }
