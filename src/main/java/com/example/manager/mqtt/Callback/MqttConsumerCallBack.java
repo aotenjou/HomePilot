@@ -122,9 +122,13 @@ public class MqttConsumerCallBack implements MqttCallback{
         int gasState = jsonNode.get("GasState").asInt();
         
         System.out.println("解析数据 - 温度: " + temperature + "°C, 湿度: " + humidity + "%, 火焰: " + fireState + ", 气体: " + gasState);
-        
-        // 存储传感器数据
-        pushCallback.mqttdataMapper.InsertMqttdata(deviceId, localtime, topic, (int)temperature);
+
+        // 存储完整的传感器数据
+        pushCallback.mqttdataMapper.insertSensorData(
+            deviceId, localtime, topic, // 存储原始JSON数据
+            temperature, humidity, lightA, lightB, lightC,
+            fanState, fireState, gasState
+        );
         pushCallback.deviceMapper.updateLastActiveTime(deviceId, localtime);
         
         // 执行自动化逻辑

@@ -28,4 +28,31 @@ public class Mqttdata{
 
     @TableField("datavalue")
     private Integer DataValue;
+
+    @TableField("sensor_data")
+    private String sensorData; // JSON格式的完整传感器数据
+
+    @TableField("temperature")
+    private Double temperature;
+
+    @TableField("humidity")
+    private Double humidity;
+
+    @TableField("light_a")
+    private Integer lightA;
+
+    @TableField("light_b")
+    private Integer lightB;
+
+    @TableField("light_c")
+    private Integer lightC;
+
+    @TableField("fan_state")
+    private Integer fanState;
+
+    @TableField("fire_state")
+    private Integer fireState;
+
+    @TableField("gas_state")
+    private Integer gasState;
 }
