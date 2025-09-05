@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>前端解决方案测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        .device-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            background: #f9f9f9;
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn:hover { background: #0056b3; }
+        .loading { text-align: center; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 智能家居前端解决方案测试</h1>
+        
+        <div id="status" class="status info">
+            正在初始化测试...
+        </div>
+
+        <div>
+            <button class="btn" onclick="testAPI()">测试API连接</button>
+            <button class="btn" onclick="testDeviceData()">测试设备数据</button>
+            <button class="btn" onclick="testAutoRefresh()">测试自动刷新</button>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const CONFIG = {
+            API_BASE_URL: 'http://localhost:8080',
+            DEVICE_IDS: [1, 2, 3, 5, 6, 8]
+        };
+
+        function updateStatus(message, type = 'info') {
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = message;
+            statusEl.className = `status ${type}`;
+        }
+
+        function addResult(title, content, type = 'info') {
+            const resultsEl = document.getElementById('results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `status ${type}`;
+            resultDiv.innerHTML = `<strong>${title}</strong><br>${content}`;
+            resultsEl.appendChild(resultDiv);
+        }
+
+        async function testAPI() {
+            updateStatus('正在测试API连接...', 'info');
+            
+            try {
+                const response = await fetch(`${CONFIG.API_BASE_URL}/api/sensor/device/1/realtime`);
+                if (response.ok) {
+                    const data = await response.json();
+                    updateStatus('✅ API连接成功！', 'success');
+                    addResult('API测试结果', 
+                        `状态码: ${response.status}<br>
+                         设备ID: ${data.deviceId}<br>
+                         设备名称: ${data.deviceName}<br>
+                         在线状态: ${data.onlineStatus ? '在线' : '离线'}<br>
+                         传感器数据: ${data.sensorData ? data.sensorData.dataValue : '无'}<br>
+                         时间戳: ${data.timestamp}`, 'success');
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                updateStatus('❌ API连接失败', 'error');
+                addResult('API测试错误', error.message, 'error');
+            }
+        }
+
+        async function testDeviceData() {
+            updateStatus('正在测试设备数据获取...', 'info');
+            
+            try {
+                const promises = CONFIG.DEVICE_IDS.map(async (deviceId) => {
+                    const response = await fetch(`${CONFIG.API_BASE_URL}/api/sensor/device/${deviceId}/realtime`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        return { deviceId, success: true, data };
+                    } else {
+                        return { deviceId, success: false, error: `HTTP ${response.status}` };
+                    }
+                });
+
+                const results = await Promise.allSettled(promises);
+                let successCount = 0;
+                let errorCount = 0;
+
+                results.forEach((result, index) => {
+                    if (result.status === 'fulfilled') {
+                        const { deviceId, success, data, error } = result.value;
+                        if (success) {
+                            successCount++;
+                            addResult(`设备 ${deviceId}`, 
+                                `名称: ${data.deviceName}<br>
+                                 状态: ${data.onlineStatus ? '在线' : '离线'}<br>
+                                 数据: ${data.sensorData ? data.sensorData.dataValue : '无'}`, 'success');
+                        } else {
+                            errorCount++;
+                            addResult(`设备 ${deviceId}`, `错误: ${error}`, 'error');
+                        }
+                    } else {
+                        errorCount++;
+                        addResult(`设备 ${CONFIG.DEVICE_IDS[index]}`, `异常: ${result.reason}`, 'error');
+                    }
+                });
+
+                updateStatus(`✅ 设备数据测试完成！成功: ${successCount}, 失败: ${errorCount}`, 
+                    errorCount === 0 ? 'success' : 'info');
+            } catch (error) {
+                updateStatus('❌ 设备数据测试失败', 'error');
+                addResult('设备数据测试错误', error.message, 'error');
+            }
+        }
+
+        async function testAutoRefresh() {
+            updateStatus('正在测试自动刷新功能...', 'info');
+            
+            let refreshCount = 0;
+            const maxRefreshes = 3;
+            
+            const refreshInterval = setInterval(async () => {
+                refreshCount++;
+                try {
+                    const response = await fetch(`${CONFIG.API_BASE_URL}/api/sensor/device/1/realtime`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        addResult(`自动刷新 ${refreshCount}`, 
+                            `时间: ${new Date().toLocaleTimeString()}<br>
+                             数据值: ${data.sensorData ? data.sensorData.dataValue : '无'}<br>
+                             时间戳: ${data.timestamp}`, 'success');
+                    } else {
+                        addResult(`自动刷新 ${refreshCount}`, `错误: HTTP ${response.status}`, 'error');
+                    }
+                } catch (error) {
+                    addResult(`自动刷新 ${refreshCount}`, `异常: ${error.message}`, 'error');
+                }
+
+                if (refreshCount >= maxRefreshes) {
+                    clearInterval(refreshInterval);
+                    updateStatus('✅ 自动刷新测试完成！', 'success');
+                }
+            }, 2000); // 每2秒刷新一次
+        }
+
+        // 页面加载完成后自动测试API连接
+        window.addEventListener('load', () => {
+            setTimeout(testAPI, 1000);
+        });
+    </script>
+</body>
+</html>
