@@ -11,4 +11,6 @@ public interface DeviceTypeMapper {
     String selectNameById(@Param("id") Long id);
 
     List<DeviceType> selectAllDeviceTypes();
+
+    DeviceType selectById(@Param("id") Long id);
 }

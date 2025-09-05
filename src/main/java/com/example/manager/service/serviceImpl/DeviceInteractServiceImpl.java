@@ -70,7 +70,7 @@ public class DeviceInteractServiceImpl extends ServiceImpl<DeviceMapper, Device>
             throw new IllegalArgumentException("设备ID或房间ID不能为空");
         }
 
-        Device device = deviceMapper.selectById(deviceId).get(0);
+        Device device = deviceMapper.selectById(deviceId);
         if (device == null) {
             throw new RuntimeException("设备不存在");
         }

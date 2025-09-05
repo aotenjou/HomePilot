@@ -94,11 +94,10 @@ public class MqttConsumerCallBack implements MqttCallback{
 
         // 基于传感器的自动化逻辑
         try {
-            List<Device> devices = pushCallback.deviceMapper.selectById(deviceId);
-            if (devices == null || devices.isEmpty()) {
+            Device sensorDevice = pushCallback.deviceMapper.selectById(deviceId);
+            if (sensorDevice == null) {
                 return;
             }
-            Device sensorDevice = devices.get(0);
             Long roomId = sensorDevice.getRoomId();
             Long homeId = sensorDevice.getHomeId();
             Long typeId = sensorDevice.getTypeId();

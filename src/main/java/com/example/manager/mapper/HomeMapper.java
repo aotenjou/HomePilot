@@ -32,4 +32,6 @@ public interface HomeMapper extends BaseMapper<Home> {
     int updateHomeAddress(Long homeId, String address);
 
     List<Home> searchHomeByPartName(@Param("name") String name);
+
+    Home selectById(@Param("id") Long id);
 }

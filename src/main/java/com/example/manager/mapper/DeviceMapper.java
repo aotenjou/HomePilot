@@ -11,7 +11,7 @@ import java.util.List;
 
 @Mapper
 public interface DeviceMapper extends BaseMapper<Device> {
-    List<Device> selectById(@Param("id") Long id);
+    Device selectById(@Param("id") Long id);
 
     List<Device> selectByIdList(@Param("idList") List<Long> idList);
 

@@ -11,7 +11,7 @@
             SELECT LAST_INSERT_ID()
     </select>
     <select id="selectById" resultType="com.example.manager.entity.Device">
-        select * from Device where id = #{id} and is_deleted = 0
+        SELECT * FROM Device WHERE id = #{id} AND is_deleted = 0 LIMIT 1
     </select>
 
     <select id="selectByIdList" resultType="com.example.manager.entity.Device">

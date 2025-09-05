@@ -58,4 +58,8 @@
     <select id="searchHomeByPartName" resultType="com.example.manager.entity.Home">
         SELECT * FROM Home WHERE name LIKE CONCAT('%', #{name}, '%') AND is_deleted = 0
     </select>
+
+    <select id="selectById" resultType="com.example.manager.entity.Home">
+        SELECT * FROM Home WHERE id = #{id} AND is_deleted = 0
+    </select>
 </mapper>

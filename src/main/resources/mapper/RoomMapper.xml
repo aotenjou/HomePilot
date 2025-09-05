@@ -31,4 +31,8 @@
     <select id="selectNameById" resultType="java.lang.String">
         SELECT name FROM ROOM WHERE id = #{id} AND is_deleted = 0
     </select>
+
+    <select id="selectById" resultType="com.example.manager.entity.Room">
+        SELECT * FROM ROOM WHERE id = #{id} AND is_deleted = 0
+    </select>
 </mapper>

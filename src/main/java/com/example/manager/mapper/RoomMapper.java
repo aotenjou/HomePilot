@@ -22,4 +22,6 @@ public interface RoomMapper extends BaseMapper<Room> {
     void deleteRoom(@Param("id") Long id, @Param("homeId") Long homeId);
 
     String selectNameById(@Param("id") Long id);
+
+    Room selectById(@Param("id") Long id);
 }

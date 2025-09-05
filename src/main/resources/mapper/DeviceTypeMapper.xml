@@ -9,4 +9,8 @@
     <select id="selectAllDeviceTypes" resultType="com.example.manager.entity.DeviceType">
         SELECT id, name, description FROM Device_Type WHERE is_deleted = 0
     </select>
+
+    <select id="selectById" resultType="com.example.manager.entity.DeviceType">
+        SELECT id, name, description FROM Device_Type WHERE id = #{id} AND is_deleted = 0
+    </select>
 </mapper>
