@@ -45,22 +45,25 @@ public class MqttConsumerCallBack implements MqttCallback{
 
     @PostConstruct
     public void init() {
-        System.out.println("MqttConsumerCallBack init");
+        System.out.println("=== MqttConsumerCallBack 初始化开始 ===");
         pushCallback = this;
         pushCallback.mqttdataMapper = this.mqttdataMapper;
         pushCallback.deviceMapper = this.deviceMapper;
         pushCallback.deviceTypeMapper = this.deviceTypeMapper;
         pushCallback.mqttSendmessageService = this.mqttSendmessageService;
         pushCallback.securityAlertService = this.securityAlertService;
+        System.out.println("=== MqttConsumerCallBack 初始化完成 ===");
     }
 
     @Override
     public void connectionLost(Throwable throwable) {
-        System.out.println("与服务器断开连接");
+        System.err.println("=== MQTT连接丢失 ===");
+        System.err.println("错误信息: " + throwable.getMessage());
+        throwable.printStackTrace();
     }
 
     public MqttConsumerCallBack() {
-        System.out.println("MqttConsumerCallBack constructed");
+        System.out.println("=== MqttConsumerCallBack 构造函数调用 ===");
     }
 
     /**
@@ -69,28 +72,31 @@ public class MqttConsumerCallBack implements MqttCallback{
     @Override
     public void messageArrived(String topic, MqttMessage message) throws Exception {
         String feedback = new String(message.getPayload());
-        System.out.println("收到MQTT消息: " + feedback);
-
         LocalDateTime localtime = LocalDateTime.now();
+        
+        System.out.println("=== 收到MQTT消息 ===");
+        System.out.println("主题: " + topic);
+        System.out.println("消息内容: " + feedback);
+        System.out.println("QoS: " + message.getQos());
+        System.out.println("保留消息: " + message.isRetained());
         System.out.println("接收时间: " + localtime);
 
         try {
             // 尝试解析JSON格式消息
             if (feedback.trim().startsWith("{")) {
+                System.out.println("检测到JSON格式消息，开始解析...");
                 parseJsonMessage(feedback, topic, localtime);
             } else {
+                System.out.println("检测到简单格式消息，开始解析...");
                 // 兼容原有的简单格式消息
                 parseSimpleMessage(feedback, topic, localtime);
             }
+            System.out.println("=== 消息处理完成 ===");
         } catch (Exception e) {
-            System.err.println("消息解析失败: " + e.getMessage());
+            System.err.println("=== 消息解析失败 ===");
+            System.err.println("错误信息: " + e.getMessage());
             e.printStackTrace();
         }
-
-        System.out.println(String.format("接收消息主题 : %s", topic));
-        System.out.println(String.format("接收消息Qos : %d", message.getQos()));
-        System.out.println(String.format("接收消息内容 : %s", new String(message.getPayload())));
-        System.out.println(String.format("接收消息retained : %b", message.isRetained()));
     }
 
     /**
@@ -124,18 +130,26 @@ public class MqttConsumerCallBack implements MqttCallback{
         System.out.println("解析数据 - 温度: " + temperature + "°C, 湿度: " + humidity + "%, 火焰: " + fireState + ", 气体: " + gasState);
 
         // 存储完整的传感器数据
-        pushCallback.mqttdataMapper.insertSensorData(
-            deviceId, localtime, topic, // 存储原始JSON数据
-            temperature, humidity, lightA, lightB, lightC,
-            fanState, fireState, gasState
-        );
-        pushCallback.deviceMapper.updateLastActiveTime(deviceId, localtime);
-        
-        // 执行自动化逻辑
-        executeAutomationLogic(deviceId, temperature, humidity, fireState, gasState, lightA, lightB, lightC, fanState);
-        
-        // 数据已存储到数据库，前端可以通过API接口获取最新数据
-        System.out.println("JSON消息解析完成，数据已存储到数据库");
+        try {
+            System.out.println("开始存储传感器数据到数据库...");
+            pushCallback.mqttdataMapper.insertSensorData(
+                deviceId, localtime, topic,
+                temperature, humidity, lightA, lightB, lightC,
+                fanState, fireState, gasState
+            );
+            System.out.println("传感器数据存储成功");
+            
+            pushCallback.deviceMapper.updateLastActiveTime(deviceId, localtime);
+            System.out.println("设备最后活跃时间更新成功");
+            
+            // 执行自动化逻辑
+            executeAutomationLogic(deviceId, temperature, humidity, fireState, gasState, lightA, lightB, lightC, fanState);
+            
+            System.out.println("JSON消息解析完成，数据已存储到数据库");
+        } catch (Exception e) {
+            System.err.println("数据存储失败: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -149,10 +163,19 @@ public class MqttConsumerCallBack implements MqttCallback{
         String valueStr = message.substring(5);
         int value = Integer.parseInt(valueStr);
         
-        pushCallback.mqttdataMapper.InsertMqttdata(deviceId, localtime, topic, value);
-        pushCallback.deviceMapper.updateLastActiveTime(deviceId, localtime);
-        
-        System.out.println("简单格式 - 设备ID: " + deviceId + ", 值: " + value);
+        try {
+            System.out.println("开始存储简单格式数据到数据库...");
+            pushCallback.mqttdataMapper.InsertMqttdata(deviceId, localtime, topic, value);
+            System.out.println("简单格式数据存储成功");
+            
+            pushCallback.deviceMapper.updateLastActiveTime(deviceId, localtime);
+            System.out.println("设备最后活跃时间更新成功");
+            
+            System.out.println("简单格式 - 设备ID: " + deviceId + ", 值: " + value);
+        } catch (Exception e) {
+            System.err.println("简单格式数据存储失败: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     /**

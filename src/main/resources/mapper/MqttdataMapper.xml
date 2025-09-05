@@ -19,6 +19,6 @@
     </insert>
 
     <select id="getDeviceData" resultType="com.example.manager.entity.Mqttdata">
-        select * from Mqtt_data where device_id = #{device_id} order by datatime desc
+        select * from Mqtt_data where device_id = #{device_id} order by datatime desc, id desc
     </select>
 </mapper>

@@ -1,7 +1,8 @@
 package com.example.manager.config;
 
-import org.springframework.context.annotation.Configuration;
+// 暂时禁用以解决启动问题
+// import org.springframework.context.annotation.Configuration;
 
-@Configuration
+// @Configuration
 public class MCPToolConfig {
 }
