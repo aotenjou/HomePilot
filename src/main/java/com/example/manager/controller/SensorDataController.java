@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -100,13 +101,29 @@ public class SensorDataController {
             response.put("homeId", homeId);
             response.put("deviceCount", devices.size());
             response.put("devices", devices);
-            
-            // 为每个设备获取最新数据
+
+            // 为每个设备获取传感器数据并构建数据列表
+            List<Map<String, Object>> dataList = new ArrayList<>();
             for (Device device : devices) {
                 List<Mqttdata> sensorDataList = mqttdataMapper.getDeviceData(device.getId());
+
+                Map<String, Object> deviceData = new HashMap<>();
+                deviceData.put("deviceId", device.getId());
+                deviceData.put("deviceName", device.getName());
+                deviceData.put("deviceType", device.getTypeId());
+
                 if (sensorDataList != null && !sensorDataList.isEmpty()) {
                     device.setLastActiveTime(LocalDateTime.now()); // 更新最后活跃时间
+                    deviceData.put("sensorData", sensorDataList.get(sensorDataList.size() - 1)); // 最新数据
+                    deviceData.put("dataCount", sensorDataList.size());
+                    deviceData.put("hasData", true);
+                } else {
+                    deviceData.put("sensorData", null);
+                    deviceData.put("dataCount", 0);
+                    deviceData.put("hasData", false);
                 }
+
+                dataList.add(deviceData);
             }
             
             return ResponseEntity.ok(response);
