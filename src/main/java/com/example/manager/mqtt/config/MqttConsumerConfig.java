@@ -24,7 +24,7 @@ public class MqttConsumerConfig {
     @Value("${spring.mqtt.client.consumerid}")
     private String clientId;
 
-    @Value("${spring.mqtt.default.topic}")
+    @Value("${spring.mqtt.topic1}")
     private String defaultTopic;
 
     /**
@@ -46,7 +46,13 @@ public class MqttConsumerConfig {
     public void connect(){
         try {
             //创建MQTT客户端对象
+            System.out.println("---------------------");
+            System.out.println(defaultTopic.toString());
             client = new MqttClient(hostUrl,clientId,new MemoryPersistence());
+            //创建MQTT客户端对象
+            System.out.println(hostUrl);
+            System.out.println(clientId);
+
             //连接设置
             MqttConnectOptions options = new MqttConnectOptions();
             //是否清空session，设置为false表示服务器会保留客户端的连接记录，客户端重连之后能获取到服务器在客户端断开连接期间推送的消息
@@ -67,9 +73,9 @@ public class MqttConsumerConfig {
             client.connect(options);
             //订阅主题
             //消息等级，和主题数组一一对应，服务端将按照指定等级给订阅了主题的客户端推送消息
-            int[] qos = {0,0,0};
+            int[] qos = {0};
             //主题
-            String[] topics = {"group3_test01","topic2","security_sensors"};
+            String[] topics = {"Hardware_OutPut"};
             //订阅主题
             client.subscribe(topics,qos);
         } catch (MqttException e) {

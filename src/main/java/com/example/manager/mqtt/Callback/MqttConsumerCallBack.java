@@ -69,6 +69,7 @@ public class MqttConsumerCallBack implements MqttCallback{
         //System.out.println("asdasd");
 
         String feedback = new String(message.getPayload());
+        System.out.println(message.toString());
         System.out.println(feedback);
 
         LocalDateTime localtime = LocalDateTime.now();

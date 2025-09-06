@@ -7,12 +7,11 @@ jwt:
 
 spring:
   application:
-    name: manager
-
+    name: managers
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3307/manager
-    username: root
+    url: jdbc:mysql://8.130.88.98:3306/manager
+    username: manager
     password: '123321'
   sql:
     init:
@@ -28,20 +27,18 @@ spring:
 
   mqtt:
     #MQTT服务地址，端口号默认11883，如果有多个，用逗号隔开
-    url: tcp://117.72.63.151:1883
+    url: tcp://localhost:1883
     #用户名
-    username: admin
+    username: au
     #密码
-    password: public
+    password: 123456
     #客户端id(不能重复)
     client:
       id: client-id
       providerid: provider-id
       consumerid: consumer-id
     #MQTT默认的消息推送主题，实际可在调用接口是指定
-    default:
-      topic: topic
-
+    topic1: Hardware_OutPut
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true

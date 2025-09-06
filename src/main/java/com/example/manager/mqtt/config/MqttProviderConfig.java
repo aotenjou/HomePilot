@@ -23,7 +23,7 @@ public class MqttProviderConfig {
     @Value("${spring.mqtt.client.providerid}")
     private String clientId;
 
-    @Value("${spring.mqtt.default.topic}")
+    @Value("${spring.mqtt.topic1}")
     private String defaultTopic;
 
     /**
